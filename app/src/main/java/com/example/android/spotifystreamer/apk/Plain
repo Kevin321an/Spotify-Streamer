@@ -1,0 +1,318 @@
+package com.example.android.spotifystreamer.apk;
+
+/**
+ * Created by FM on 6/16/2015.
+ */
+
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+private static final String LOG_TAG = SearchArtistFragment.class.getSimpleName();
+
+        ArtistSearchAdapter mArtistSearchAdapter;
+        EditText searchField;
+// Will contain the raw JSON response as a JSONObject.
+        String spotifyJSON;
+        List<JSONObject> artistsListJson= new ArrayList<JSONObject>();
+        ListView artistList;
+
+public SearchArtistFragment() {
+        }
+
+@Override
+public View onCreateView(LayoutInflater inflater, ViewGroup container,
+        Bundle savedInstanceState) {
+
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+        searchField = (EditText) rootView.findViewById(R.id.editTextSearchArtist);
+
+        artistList=(ListView)rootView.findViewById(R.id.listViewArtistSearchResults);
+
+        // Create custom adapter for listview
+        mArtistSearchAdapter = new ArtistSearchAdapter(getActivity(), R.id.listItemArtist, new ArrayList<JSONObject>());
+
+        //Set adapter to listview
+        artistList.setAdapter(mArtistSearchAdapter);
+
+        searchField.addTextChangedListener(new TextWatcher() {
+@Override
+public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (count > 3) {
+        performSearch(s.toString());
+        }
+        }
+
+@Override
+public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+@Override
+public void afterTextChanged(Editable s) {
+        }
+
+private void performSearch(String search) {
+        FetchSpotifyDataTask spotifyTask = new FetchSpotifyDataTask();
+        spotifyTask.execute(search);
+        }
+
+        });
+
+        return rootView;
+        }
+
+private class FetchSpotifyDataTask extends AsyncTask<String, Void, JSONObject[]> implements com.loganyu.spotifystreamer.FetchSpotifyDataTask {
+
+    private final String LOG_TAG = FetchSpotifyDataTask.class.getSimpleName();
+
+    @Override
+    protected JSONObject[] doInBackground(String... params) {
+        // These two need to be declared outside the try/catch
+        // so that they can be closed in the finally block.
+        HttpURLConnection urlConnection = null;
+        BufferedReader reader = null;
+
+        String format = "json";
+        String units = "metric";
+        int numDays = 7;
+
+        try {
+            // Construct the URL for the SpotifyAPI query
+            // Possible parameters are available at Spotify's API page, at
+            // https://developer.spotify.com/web-api/search-item/
+            final String SPOTIFY_BASE_URL =
+                    "https://api.spotify.com/v1/search?";
+            final String QUERY_PARAM = "q";
+            final String TYPE_PARAM = "type";
+            final String TYPE_VALUE = "artist";
+
+            Uri builtUri = Uri.parse(SPOTIFY_BASE_URL).buildUpon()
+                    .appendQueryParameter(QUERY_PARAM, "taylor")
+                    .appendQueryParameter(TYPE_PARAM, TYPE_VALUE)
+                    .build();
+
+            URL url = new URL(builtUri.toString());
+
+            Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+
+            // Create the request to SpotifyAPI, and open the connection
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            // Read the input stream into a String
+            InputStream inputStream = urlConnection.getInputStream();
+            StringBuffer buffer = new StringBuffer();
+            if (inputStream == null) {
+                // Nothing to do.
+                return null;
+            }
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                // But it does make debugging a *lot* easier if you print out the completed
+                // buffer for debugging.
+                buffer.append(line + "\n");
+            }
+
+            if (buffer.length() == 0) {
+                // Stream was empty.  No point in parsing.
+                return null;
+            }
+
+            spotifyJSON = buffer.toString();
+
+            Log.v(LOG_TAG, "Forecast JSON String: " + spotifyJSON);
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error ", e);
+            // If the code didn't successfully get the weather data, there's no point in attempting
+            // to parse it.
+            return null;
+        } finally{
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (final IOException e) {
+                    Log.e(LOG_TAG, "Error closing stream", e);
+                }
+            }
+        }
+
+        try {
+            return getArtistDataFromJson(spotifyJSON);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, e.getMessage(), e);
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public void onPostExecute(JSONObject[] results) {
+        super.onPostExecute(results);
+        if (results != null) {
+            mArtistSearchAdapter.clear();
+            Log.v(LOG_TAG, "updated adapter");
+            for(JSONObject artistObj : results){
+                Log.v(LOG_TAG, "artistObj" + artistObj);
+                mArtistSearchAdapter.add(artistObj);
+            }
+            // New data is back from the server.  Hooray!
+        }
+
+    }
+}
+
+~~~~~~~~~~~~
+ArtistsSearchAdapter.java:
+
+public class ArtistSearchAdapter extends ArrayAdapter {
+
+private SearchArtistFragment activity;
+private List<JSONObject> artistsData;
+private static LayoutInflater inflater = null;
+
+public ArtistSearchAdapter(Context context, int textViewResourceId) {
+    super(context, textViewResourceId);
+}
+
+public ArtistSearchAdapter(Context context, int resource, ArrayList<JSONObject> items) {
+    super(context, resource, items);
+}
+
+~~~~~~~~~~~~~~~
+// public ImageLoader imageLoader;
+
+public static class ArtistViewHolder{
+    public TextView spotifyId;
+    public TextView artistName;
+    public TextView thumbnailImageURL;
+// public ImageView image;
+}
+// @Override
+public void add(Object object) {
+
+    super.add(object);
+    notifyDataSetChanged();
+}
+
+@Override
+public int getCount() {
+    return 0;
+}
+
+@Override
+public Object getItem(int position) {
+    return null;
+}
+
+@Override
+public long getItemId(int position) {
+    return 0;
+}
+
+@Override
+public View getView(int position, View convertView, ViewGroup parent) {
+    View vi=convertView;
+    ArtistViewHolder holder;
+
+    if(convertView==null) {
+
+        /****** Inflate tabitem.xml file for each row ( Defined below ) *******/
+        LayoutInflater li;
+        li = LayoutInflater.from(getContext());
+        vi = li.inflate(R.layout.list_item_artist, parent, false);
+    }
+
+    JSONObject artist = (JSONObject) getItem(position);
+
+    if (artist != null) {
+        TextView artistName = (TextView)vi.findViewById(R.id.artistName);
+        TextView thumbnailImageURL = (TextView)vi.findViewById(R.id.thumbnailImageURL);
+
+        if (artistName != null) {
+            try {
+                artistName.setText(artist.getString("artistName"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (thumbnailImageURL != null) {
+            try {
+                thumbnailImageURL.setText(artist.getString("thumbnailImageURL"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    return vi;
+}
+
+fragment_main.xml:
+
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingBottom="@dimen/activity_vertical_margin"
+android:paddingLeft="@dimen/activity_horizontal_margin"
+android:paddingRight="@dimen/activity_horizontal_margin"
+android:paddingTop="@dimen/activity_vertical_margin"
+tools:context=".MainActivityFragment"
+android:orientation="vertical">
+
+<EditText
+    android:id="@+id/editTextSearchArtist"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:singleLine="true"/>
+
+<ListView
+    android:id="@+id/listViewArtistSearchResults"
+    android:layout_width="match_parent"
+    android:layout_height="450dp" />
+list_item_artist.xml:
+
+<?xml version="1.0" encoding="utf-8"?>
+android:layout_width="match_parent"
+android:layout_height="50dp"
+android:orientation="horizontal"
+android:id="@+id/listItemArtist">
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:text="New Text" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:text="New Text"
+    android:id="@+id/thumbnailImageURL" />
+
+<TextView
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:text="New Text"
+    android:id="@+id/artistName" />
