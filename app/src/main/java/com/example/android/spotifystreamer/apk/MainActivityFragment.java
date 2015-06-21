@@ -1,9 +1,12 @@
 package com.example.android.spotifystreamer.apk;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +14,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -33,12 +38,14 @@ import java.util.List;
  */
 public class MainActivityFragment extends Fragment {
 
+    EditText searchBar;
+    //SearchView searchBar;
     //private ArrayAdapter<String> mArtistListAdapter;
     private MainAdapter mArtistListAdapter;
-    String[] artistName={"fdlajsfd","dflasdjf"};
+    //String[] artistName={"fdlajsfd","dflasdjf"};
 
-    String[] id;
-    String[] imagesUrlS={"https://i.scdn.co/image/f444d668bfa1a057e1759c6266f8fbf471eb6c04", "https://i.scdn.co/image/48c420405d19d09381d5541d239a9b7ae9bd3ed8"};
+    //String[] id;
+    //String[] imagesUrlS={"https://i.scdn.co/image/f444d668bfa1a057e1759c6266f8fbf471eb6c04", "https://i.scdn.co/image/48c420405d19d09381d5541d239a9b7ae9bd3ed8"};
 
 
     /*
@@ -49,13 +56,20 @@ public class MainActivityFragment extends Fragment {
     }
     */
 
+
     public MainActivityFragment() {
     }
 
-    private void updateArtistList(){
-        FetchArtistTask artistTask= new FetchArtistTask();
+    private void performSearch(String search) {
+        // Start an AsyncTask or use the SpotifyWrapper Callbacks here
+    }
+
+    //for test
+    private void updateArtistList() {
+        FetchArtistTask artistTask = new FetchArtistTask();
         artistTask.execute("tania");
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,27 +77,37 @@ public class MainActivityFragment extends Fragment {
         setHasOptionsMenu(true);
     }
 
+
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.refresh, menu);
-        }
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            // Handle action bar item clicks here. The action bar will
-            // automatically handle clicks on the Home/Up button, so long
-            // as you specify a parent activity in AndroidManifest.xml.
-            int id = item.getItemId();
-            if (id == R.id.action_refresh) {
-                updateArtistList();
+
+    }
+
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            updateArtistList();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView=inflater.inflate(R.layout.fragment_main, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+
         String[] data = {
                 "Mon 6/23?- Sunny - 31/17",
                 "Tue 6/24 - Foggy - 21/8",
@@ -94,24 +118,94 @@ public class MainActivityFragment extends Fragment {
                 "Sun 6/29 - Sunny - 20/7"
         };
         List<String> listArtist = new ArrayList<String>(Arrays.asList(data));
-        mArtistListAdapter=new MainAdapter(getActivity(),artistName,imagesUrlS);
+        mArtistListAdapter = new MainAdapter(getActivity(),R.layout.list_item_artist_textview, new ArrayList<MusicData>());
         //mArtistListAdapter=new ArrayAdapter<String>
-          //      (getActivity(), R.layout.list_item_artist_textview,
-           //             R.id.list_item_artist_textview, listArtist);
+        //      (getActivity(), R.layout.list_item_artist_textview,
+        //             R.id.list_item_artist_textview, listArtist);
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
+
+
+        //Listener for searchBar
+        /*
+
+
+        searchBar=(SearchView)rootView.findViewById(R.id.artists_search_bar);
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String query) {
+                performSearch(query);
+                return true;
+
+            }
+
+        });
+        */
+
+        //Listener for EditText
+
+        searchBar=(EditText)rootView.findViewById(R.id.artists_search_bar);
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().isEmpty()) {
+                    performSearch(s.toString());
+                }
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+
+            private void performSearch(String search) {
+                FetchArtistTask artistTask = new FetchArtistTask();
+                artistTask.execute(search);
+            }
+        });
+
+
+        //listener for listview
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                 MusicData music= mArtistListAdapter.getItem(position);
+                //Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
+                Intent showDetail = new Intent(getActivity(), DetailActivity.class)
+                        .putExtra("Object", music );
+                startActivity(showDetail);
+                //Reference
+                //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
+            }
+        });
+
+
 
         return rootView;
     }
 
 
-    public class FetchArtistTask extends AsyncTask<String, Void, String[]>{
-        private final String LOG_TAG =FetchArtistTask.class.getSimpleName();
+
+                final String ARTIST_BASE_URL = "https://api.spotify.com/v1/search?";
+                final String QUERY_PARAM = "q";
+                final String TYPE_PARAM = "type";
+    public class FetchArtistTask extends AsyncTask<String, Void, ArrayList<MusicData>> {
+        private final String LOG_TAG = FetchArtistTask.class.getSimpleName();
 
 
-
-        protected String[] doInBackground(String... params) {
+        protected ArrayList<MusicData> doInBackground(String... params) {
             /*
             if(params.length==0){
                 return null;
@@ -125,54 +219,49 @@ public class MainActivityFragment extends Fragment {
             String artistJsonStr = null;
 
             //curl -X GET "https://api.spotify.com/v1/search?q=tania*&type=artist" -H "Accept: application/json"
-            try{
-
-                final String ARTIST_BASE_URL="https://api.spotify.com/v1/search?";
-                final String QUERY_PARAM = "q";
-                final String TYPE_PARAM="type";
-                final String ARTIST_TYPE_PARAM="artist";
+            try {
+                final String ARTIST_TYPE_PARAM = "artist";
                 //URL url= new URL("https://api.spotify.com/v1/search?q=tania*&type=artist");
                 Uri builtUri = Uri.parse(ARTIST_BASE_URL).buildUpon()
                         .appendQueryParameter(QUERY_PARAM, params[0])
                         .appendQueryParameter(TYPE_PARAM, ARTIST_TYPE_PARAM)
                         .build();
-                URL url=new URL(builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI"+ builtUri.toString());
-                urlConnection =(HttpURLConnection)url.openConnection();
+                Log.v(LOG_TAG, "Built URI" + builtUri.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
                 urlConnection.connect();
-                InputStream inputStream=urlConnection.getInputStream();
-                StringBuffer buffer= new StringBuffer();
-                if (inputStream==null){
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
                     return null;
                 }
-                reader=new BufferedReader(new InputStreamReader(inputStream));
+                reader = new BufferedReader(new InputStreamReader(inputStream));
                 String line;
-                while ((line=reader.readLine()) !=null){
-                    buffer.append(line+"\n");
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
 
                 }
-                if (buffer.length()==0){
+                if (buffer.length() == 0) {
                     return null;
 
                 }
-                artistJsonStr=buffer.toString();
+                artistJsonStr = buffer.toString();
                 //Log.v(LOG_TAG, "artisList JSON String"+artistJsonStr);
 
-            }catch (IOException e){
-                Log.e("LOG_TAG", "Error "+e);
+            } catch (IOException e) {
+                Log.e("LOG_TAG", "Error " + e);
                 return null;
 
-            }finally {
-                if (urlConnection!=null){
+            } finally {
+                if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
-                if (reader!=null){
-                    try{
+                if (reader != null) {
+                    try {
                         reader.close();
-                    }
-                    catch (final IOException e ){
+                    } catch (final IOException e) {
                         Log.e("LOG_TAG", "Error closing stream", e);
                     }
                 }
@@ -183,84 +272,85 @@ public class MainActivityFragment extends Fragment {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
-         return null;
+            return null;
 
 
         }
 
 
-
-        private String[] getArtistDataFromJson(String musicJsonStr)
+        private ArrayList<MusicData> getArtistDataFromJson(String musicJsonStr)
                 throws JSONException {
+            ArrayList<MusicData> music;
 
             //Log.v(LOG_TAG, "artisList JSON String"+musicJsonStr);
 
             // These are the names of the JSON objects that need to be extracted.
             final String SPOTIFY_ITEMS = "items";
             final String SPOTIFY_ID = "id";
-            final String SPOTIFY_IMAGE="images";
-            final String SPOTIFY_ARITIS="artists";
+            final String SPOTIFY_IMAGE = "images";
+            final String SPOTIFY_ARITIS = "artists";
             JSONObject musicJson = new JSONObject(musicJsonStr).getJSONObject(SPOTIFY_ARITIS);
             JSONArray musicArray = musicJson.getJSONArray(SPOTIFY_ITEMS);
             //Log.v(LOG_TAG, "artisList JSON String"+musicArray.toString());
-            int numberOfAritist=musicArray.length();
+            int numberOfAritist = musicArray.length();
 
-            String[] resultStrs = new String[numberOfAritist];
-            artistName= new String[numberOfAritist];
-            id=new String[numberOfAritist];
-            imagesUrlS=new String[numberOfAritist];
+            music = new ArrayList<MusicData>();
+
+            //String[] resultStrs = new String[numberOfAritist];
+            //artistName= new String[numberOfAritist];
+            //id=new String[numberOfAritist];
+            //imagesUrlS=new String[numberOfAritist];
 
 
             for (int i = 0; i < musicArray.length(); i++) {
-                final String OWM_NAME="name";
-                final String OWM_URL="url";
-                final int SMALL_IMG_SEQUENCE=2;
-
-
-
-
+                final String OWM_NAME = "name";
+                final String OWM_URL = "url";
+                final int SMALL_IMG_SEQUENCE = 2;
+                String imagesUrlS;
                 // Get the JSON object representing the day
-                JSONObject artistObject=musicArray.getJSONObject(i);
-                id[i]=artistObject.getString(SPOTIFY_ID);
+                JSONObject artistObject = musicArray.getJSONObject(i);
+                String id = artistObject.getString(SPOTIFY_ID);
                 //JSONObject images= artistObject.getJSONArray(SPOTIFY_IMAGE).getJSONObject(SMALL_IMG_SEQUENCE);
-                JSONArray images=artistObject.getJSONArray(SPOTIFY_IMAGE);
-                if (images.length()>0){
-                    imagesUrlS[i]=images.getJSONObject(SMALL_IMG_SEQUENCE).getString(OWM_URL);
-                }
-                else{
-                    imagesUrlS[i]="";
+                JSONArray images = artistObject.getJSONArray(SPOTIFY_IMAGE);
+
+                if (images.length() > 0) {
+                    imagesUrlS = images.getJSONObject(SMALL_IMG_SEQUENCE).getString(OWM_URL);
+                } else {
+                    imagesUrlS = "";
                 }
 
-                artistName[i]=artistObject.getString(OWM_NAME);
-                resultStrs[i]=artistName[i];
+                String artistName = artistObject.getString(OWM_NAME);
+                music.add(new MusicData(artistName, imagesUrlS, id));
+
             }
 
             //output the  the formated data
-            for (String s : resultStrs) {
+            for (MusicData s : music) {
                 Log.v(LOG_TAG, "Forecast entry: " + s);
             }
-            return resultStrs;
+            return music;
 
         }
 
 
-        /*
-        protected void onPostExecute(String[] result) {
+        protected void onPostExecute(ArrayList<MusicData> result) {
             if (result != null) {
                 mArtistListAdapter.clear();
-                mArtistListAdapter.addAll(artistName);
+                mArtistListAdapter.addAll(result);
 
 
                 //for (String Str : result) {
-                 //   mArtistListAdapter.add(Str);
+                //   mArtistListAdapter.add(Str);
                 //}
             }
 
         }
-        */
+
 
     }
 
 
-
 }
+
+
+

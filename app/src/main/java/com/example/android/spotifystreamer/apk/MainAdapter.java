@@ -1,11 +1,13 @@
 package com.example.android.spotifystreamer.apk;
 
 import android.app.Activity;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -16,66 +18,93 @@ import java.util.ArrayList;
  * Created by FM on 6/16/2015.
  */
 
-public class MainAdapter extends  ArrayAdapter<MusicData> {
+public class MainAdapter extends ArrayAdapter<MusicData> {
 
     //private final Activity context;
-    //private final String[] songName;
-    //private final String[] image;
-    //private final String[] album;
+    private int mResource;
+    private Context mContext;
 
     //public MainAdapter(Activity context,
-                        //String[] songName, String[] image, String[] album) {
-    public MainAdapter(Activity context, ArrayList<MusicData> music){
-        super (context, 0, music);
-        /*
-        super(context, R.layout.list_item_artist_textview, songName);
-        this.context = context;
-        this.songName = songName;
-        this.image = image;
-        //this.album = album;
-        */
+    //String[] songName, String[] image, String[] album) {
+    public MainAdapter(Activity context, int resource, ArrayList<MusicData> music) {
+        super(context, resource, music);
+        this.mResource = resource;
+
+        //super(context, R.layout.list_item_artist_textview, songName);
+        this.mContext = context;
+
 
     }
 
 
     @Override
     public View getView(int position, View view, ViewGroup parent) {
-        //LayoutInflater inflater = context.getLayoutInflater();
-        View rootView = LayoutInflater.from(context).inflate(R.layout.list_item_artist_textview, parent, false);
-        //View rowView= inflater.inflate(R.layout.list_item_music, null, true);
+        LinearLayout layout;
+               // Get the data item for this position
+        MusicData music = getItem(position);
+        // Check if an existing view is being reused, otherwise inflate the view
+        if (view == null) {
+            layout = new LinearLayout(getContext());
+            ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                    .inflate(mResource, layout, true);
 
-        ImageView iconView = (ImageView) rootView.findViewById(R.id.list_artists_imageview);
-        //iconView.setImageResource(R.drawable.ic_launcher);
-        Picasso.with(context).load(image[position]).into(iconView);
-
-        TextView songNameView = (TextView) rootView.findViewById(R.id.list_item_artist_textview);
-        songNameView.setText(songName[position]);
-        // Read weather forecast from cursor
-        //String description = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
-        // Find TextView and set weather forecast on it
-
-        //TextView albumView = (TextView) rootView.findViewById(R.id.list_item_albumname_textview);
-        //albumView.setText(album[position]);
-
-        return rootView;
-}
-/*
-package com.example.poornima_udacity.spotify_project1;
-
-        import android.app.Activity;
-        import android.view.LayoutInflater;
-        import android.view.View;
-        import android.view.ViewGroup;
-        import android.widget.ArrayAdapter;
-        import android.widget.ImageView;
-        import android.widget.TextView;
-
-        import com.squareup.picasso.Picasso;
-
-public class MusicAdapter extends ArrayAdapter<String> {
+            // rootView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_artist_textview, parent, false);
+        } else {
+            layout = (LinearLayout) view;
+        }
+        //!!!!!!!!!!!!!!!!!THere was a bug as the rooView was not being inflate every time.
+        if (mResource == R.layout.list_item_artist_textview) {
 
 
+            //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
+            ((TextView) layout.findViewById(R.id.list_item_artist_textview)).setText(music.artist);
+
+            //songNameView.setText(songName[position]);
+            //songNameView.setText(music.artist);
+
+
+            if (music.image != null) {
+                ImageView iconView = (ImageView) layout.findViewById(R.id.list_artists_imageview);
+                //iconView.setImageResource(R.drawable.ic_launcher);
+                //Picasso.with(context).load(image[position]).into(iconView);
+                try {
+                    Picasso.with(mContext).load(music.image).into(iconView);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+        else if (mResource == R.layout.list_item_artist_ablum) {
+
+
+            //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
+            ((TextView) layout.findViewById(R.id.list_item_song_textview)).setText(music.id.trackName);
+            ((TextView) layout.findViewById(R.id.list_item_ablum_textview)).setText(music.id.albumName);
+
+            //songNameView.setText(songName[position]);
+            //songNameView.setText(music.artist);
+
+
+            if (music.id.albumImage300 != null) {
+                ImageView iconView = (ImageView) layout.findViewById(R.id.list_ablum_imageview);
+                //iconView.setImageResource(R.drawable.ic_launcher);
+                //Picasso.with(context).load(image[position]).into(iconView);
+                try {
+                    Picasso.with(mContext).load(music.id.albumImage300).into(iconView);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+        }
+
+        return layout;
     }
-    */
+
 }
 
