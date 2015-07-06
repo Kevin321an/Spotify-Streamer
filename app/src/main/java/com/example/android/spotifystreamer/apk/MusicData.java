@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class MusicData implements Serializable{
     public String artist;
     public String image;
-//    Here would be a Null Ponter Exception err if do not initialize the id
+//    Here would be a Null Pointer Exception err if do not initialize the id
     public TrackData id=new TrackData();
     public MusicData(String artist,String image, String id){
         this.artist=artist;
@@ -17,8 +17,6 @@ public class MusicData implements Serializable{
         this.id.id=id;
     }
     public MusicData(String id, String trackName, String albumName, String albumImage600, String albumImage300, String previewURL){
-
-
         this.id.id=id;
         this.id.trackName=trackName;
         this.id.albumName=albumName;
@@ -34,12 +32,9 @@ public class MusicData implements Serializable{
         String albumImage600;
         String albumImage300;
         String previewUrl;
-
     }
-
     @Override
     public String toString() {
-
         return "artist: " + artist + "image: " + image + "id: " + id+ "\n"
                 +this.id.trackName+ "\n"
                 +this.id.albumName+ "\n"
@@ -48,6 +43,5 @@ public class MusicData implements Serializable{
                 +this.id.previewUrl;
 
     }
-
 }
 

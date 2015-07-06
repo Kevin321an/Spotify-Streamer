@@ -30,16 +30,16 @@ import java.util.ArrayList;
 public class DetailActivityFragment extends Fragment {
     private MusicData music;
     private String musicID;
+    private String artistName;
     private MainAdapter mDetailAdapter;
-
-    public DetailActivityFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
+
 
         if (intent != null && intent.hasExtra("Object")) {
             //music = intent.getStringExtra(Intent.EXTRA_TEXT);
@@ -47,10 +47,12 @@ public class DetailActivityFragment extends Fragment {
             //((TextView) rootView.findViewById(R.id.detail_text))
             // .setText(mForecastStr);
         }
-        musicID=music.id.id;
+        musicID = music.id.id;
+        artistName = music.artist;
+
         FetchTrackTask trackTask = new FetchTrackTask();
         trackTask.execute(music.id.id);
-        mDetailAdapter = new MainAdapter(getActivity(),R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
+        mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
         //mArtistListAdapter=new ArrayAdapter<String>
         //      (getActivity(), R.layout.list_item_artist_textview,
         //             R.id.list_item_artist_textview, listArtist);
@@ -63,10 +65,6 @@ public class DetailActivityFragment extends Fragment {
 
     public class FetchTrackTask extends AsyncTask<String, Void, ArrayList<MusicData>> {
         private final String LOG_TAG = FetchTrackTask.class.getSimpleName();
-
-
-
-
         protected ArrayList<MusicData> doInBackground(String... params) {
 
             /*
@@ -144,8 +142,6 @@ public class DetailActivityFragment extends Fragment {
 
 
         }
-
-
         private ArrayList<MusicData> getTrackDataFromJson(String musicJsonStr)
                 throws JSONException {
             ArrayList<MusicData> music;
@@ -167,8 +163,8 @@ public class DetailActivityFragment extends Fragment {
             //Log.v(LOG_TAG, "artisList JSON String"+musicArray.toString());
             int numberOfAritist = musicArray.length();
 
-            if (numberOfAritist<NUMBER_OF_DISPLAY_TRACK){
-                NUMBER_OF_DISPLAY_TRACK=numberOfAritist;    //by any chance if top tracks are less than 10 will result at out of boundary
+            if (numberOfAritist < NUMBER_OF_DISPLAY_TRACK) {
+                NUMBER_OF_DISPLAY_TRACK = numberOfAritist;    //by any chance if top tracks are less than 10 will result at out of boundary
             }
 
             music = new ArrayList<MusicData>();
@@ -185,47 +181,41 @@ public class DetailActivityFragment extends Fragment {
                 // Get the JSON object representing the day
                 JSONObject artistObject = musicArray.getJSONObject(i);
                 trackName = artistObject.getString(OWM_NAME);
-                previewUrl=artistObject.getString(OWM_PREVIEWURL);
+                previewUrl = artistObject.getString(OWM_PREVIEWURL);
 
                 JSONObject album = artistObject.getJSONObject(OWM_ALBUM);
                 albumName = album.getString(OWM_NAME);
 
 
-
-
                 //JSONObject images= artistObject.getJSONArray(SPOTIFY_IMAGE).getJSONObject(SMALL_IMG_SEQUENCE);
                 JSONArray images = album.getJSONArray(SPOTIFY_IMAGE);
                 if (images.length() > 0) {
-                    JSONObject image640=images.getJSONObject(ALBUMIMAGE640PX_SEQUENCE);
-                    if (image640.getString(OWM_URL)!=null){
+                    JSONObject image640 = images.getJSONObject(ALBUMIMAGE640PX_SEQUENCE);
+                    if (image640.getString(OWM_URL) != null) {
                         albumImage640 = image640.getString(OWM_URL);
-                    }
-                    else {
-                        albumImage640="";
+                    } else {
+                        albumImage640 = "";
 
                     }
-                    JSONObject image300=images.getJSONObject(ALBUMIMAGE300PX_SEQUENCE);
-                    if (image300.getString(OWM_URL)!=null){
+                    JSONObject image300 = images.getJSONObject(ALBUMIMAGE300PX_SEQUENCE);
+                    if (image300.getString(OWM_URL) != null) {
                         albumImage300 = image300.getString(OWM_URL);
-                    }
-                    else {
-                        albumImage300="";
+                    } else {
+                        albumImage300 = "";
                     }
                 } else {
                     //TO do add a pic holder
                     albumImage640 = "";
                     albumImage300 = "";
                 }
-               // music.add(new MusicData(artistName, imagesUrlS, id));
-                music.add(new MusicData(musicID,trackName, albumName,albumImage640,albumImage300,previewUrl));
+                // music.add(new MusicData(artistName, imagesUrlS, id));
+                music.add(new MusicData(musicID, trackName, albumName, albumImage640, albumImage300, previewUrl));
 
             }
-
             //output the  the formated data
-
             for (MusicData s : music) {
                 Log.v(LOG_TAG, "Detail entry: " + s);
-            } 
+            }
             return music;
 
         }
@@ -233,7 +223,6 @@ public class DetailActivityFragment extends Fragment {
             if (result != null) {
                 mDetailAdapter.clear();
                 mDetailAdapter.addAll(result);
-
 
                 //for (String Str : result) {
                 //   mArtistListAdapter.add(Str);

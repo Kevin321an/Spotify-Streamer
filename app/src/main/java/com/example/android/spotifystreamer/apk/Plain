@@ -49,8 +49,8 @@ public View onCreateView(LayoutInflater inflater, ViewGroup container,
 @Override
 public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (count > 3) {
-        performSearch(s.toString());
-        }
+                 performSearch(s.toString());
+                 }
         }
 
 @Override

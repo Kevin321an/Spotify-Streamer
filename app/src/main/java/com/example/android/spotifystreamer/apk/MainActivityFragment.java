@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,8 +30,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 
 /**
@@ -39,15 +38,12 @@ import java.util.List;
 public class MainActivityFragment extends Fragment {
 
     EditText searchBar;
+    private boolean dataIsNull=false;
     //SearchView searchBar;
     //private ArrayAdapter<String> mArtistListAdapter;
     private MainAdapter mArtistListAdapter;
-    //String[] artistName={"fdlajsfd","dflasdjf"};
-
     //String[] id;
     //String[] imagesUrlS={"https://i.scdn.co/image/f444d668bfa1a057e1759c6266f8fbf471eb6c04", "https://i.scdn.co/image/48c420405d19d09381d5541d239a9b7ae9bd3ed8"};
-
-
     /*
     @Override
     public void onStart(){
@@ -55,49 +51,40 @@ public class MainActivityFragment extends Fragment {
         updateArtistList();
     }
     */
-
-
     public MainActivityFragment() {
     }
 
-    private void performSearch(String search) {
-        // Start an AsyncTask or use the SpotifyWrapper Callbacks here
-    }
-
     //for test
-    private void updateArtistList() {
+    /*private void updateArtistList() {
         FetchArtistTask artistTask = new FetchArtistTask();
         artistTask.execute("tania");
     }
+
+    * */
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events.
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(false);
     }
-
-
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.refresh, menu);
 
     }
-
-
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+
+        /*if (id == R.id.action_refresh) {
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
             updateArtistList();
             return true;
-        }
+        }*/
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -106,9 +93,8 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-
-        String[] data = {
+        /*only for test
+        *  String[] data = {
                 "Mon 6/23?- Sunny - 31/17",
                 "Tue 6/24 - Foggy - 21/8",
                 "Wed 6/25 - Cloudy - 22/17",
@@ -118,6 +104,10 @@ public class MainActivityFragment extends Fragment {
                 "Sun 6/29 - Sunny - 20/7"
         };
         List<String> listArtist = new ArrayList<String>(Arrays.asList(data));
+        *
+        *
+        * */
+
         mArtistListAdapter = new MainAdapter(getActivity(),R.layout.list_item_artist_textview, new ArrayList<MusicData>());
         //mArtistListAdapter=new ArrayAdapter<String>
         //      (getActivity(), R.layout.list_item_artist_textview,
@@ -125,12 +115,8 @@ public class MainActivityFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
-
-
         //Listener for searchBar
         /*
-
-
         searchBar=(SearchView)rootView.findViewById(R.id.artists_search_bar);
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -145,12 +131,9 @@ public class MainActivityFragment extends Fragment {
                 return true;
 
             }
-
         });
         */
-
         //Listener for EditText
-
         searchBar=(EditText)rootView.findViewById(R.id.artists_search_bar);
 
         searchBar.addTextChangedListener(new TextWatcher() {
@@ -158,6 +141,11 @@ public class MainActivityFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!s.toString().isEmpty()) {
                     performSearch(s.toString());
+                }
+                final String NO_RESULT="Sorry, we do not have this artist";
+                if (dataIsNull&&s.length()>3){
+                    Toast.makeText(getActivity(), NO_RESULT, Toast.LENGTH_SHORT).show();
+                    dataIsNull=false;
                 }
             }
 
@@ -190,14 +178,8 @@ public class MainActivityFragment extends Fragment {
                 //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
             }
         });
-
-
-
         return rootView;
     }
-
-
-
                 final String ARTIST_BASE_URL = "https://api.spotify.com/v1/search?";
                 final String QUERY_PARAM = "q";
                 final String TYPE_PARAM = "type";
@@ -278,9 +260,10 @@ public class MainActivityFragment extends Fragment {
         }
 
 
+
         private ArrayList<MusicData> getArtistDataFromJson(String musicJsonStr)
                 throws JSONException {
-            ArrayList<MusicData> music;
+             ArrayList<MusicData> music;
 
             //Log.v(LOG_TAG, "artisList JSON String"+musicJsonStr);
 
@@ -293,6 +276,9 @@ public class MainActivityFragment extends Fragment {
             JSONArray musicArray = musicJson.getJSONArray(SPOTIFY_ITEMS);
             //Log.v(LOG_TAG, "artisList JSON String"+musicArray.toString());
             int numberOfAritist = musicArray.length();
+            if (numberOfAritist==0){
+                dataIsNull=true;
+            }
 
             music = new ArrayList<MusicData>();
 
@@ -302,7 +288,7 @@ public class MainActivityFragment extends Fragment {
             //imagesUrlS=new String[numberOfAritist];
 
 
-            for (int i = 0; i < musicArray.length(); i++) {
+            for (int i = 0; i < numberOfAritist; i++) {
                 final String OWM_NAME = "name";
                 final String OWM_URL = "url";
                 final int SMALL_IMG_SEQUENCE = 2;
@@ -331,25 +317,17 @@ public class MainActivityFragment extends Fragment {
             return music;
 
         }
-
-
         protected void onPostExecute(ArrayList<MusicData> result) {
             if (result != null) {
                 mArtistListAdapter.clear();
                 mArtistListAdapter.addAll(result);
-
-
                 //for (String Str : result) {
                 //   mArtistListAdapter.add(Str);
                 //}
             }
 
         }
-
-
     }
-
-
 }
 
 

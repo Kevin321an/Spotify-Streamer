@@ -25,7 +25,6 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
     private Context mContext;
 
     //public MainAdapter(Activity context,
-    //String[] songName, String[] image, String[] album) {
     public MainAdapter(Activity context, int resource, ArrayList<MusicData> music) {
         super(context, resource, music);
         this.mResource = resource;
@@ -55,14 +54,11 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
         //!!!!!!!!!!!!!!!!!THere was a bug as the rooView was not being inflate every time.
         if (mResource == R.layout.list_item_artist_textview) {
 
-
             //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
             ((TextView) layout.findViewById(R.id.list_item_artist_textview)).setText(music.artist);
 
             //songNameView.setText(songName[position]);
             //songNameView.setText(music.artist);
-
-
             if (music.image != null) {
                 ImageView iconView = (ImageView) layout.findViewById(R.id.list_artists_imageview);
                 //iconView.setImageResource(R.drawable.ic_launcher);
@@ -73,12 +69,9 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
             }
         }
         else if (mResource == R.layout.list_item_artist_ablum) {
-
 
             //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
             ((TextView) layout.findViewById(R.id.list_item_song_textview)).setText(music.id.trackName);
@@ -86,8 +79,6 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
 
             //songNameView.setText(songName[position]);
             //songNameView.setText(music.artist);
-
-
             if (music.id.albumImage300 != null) {
                 ImageView iconView = (ImageView) layout.findViewById(R.id.list_ablum_imageview);
                 //iconView.setImageResource(R.drawable.ic_launcher);
@@ -98,8 +89,6 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
             }
         }
 
