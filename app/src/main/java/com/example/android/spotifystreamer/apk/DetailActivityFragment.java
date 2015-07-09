@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 public class DetailActivityFragment extends Fragment {
     private MusicData music;
     private String musicID;
-    private String artistName;
     private MainAdapter mDetailAdapter;
 
     @Override
@@ -39,8 +39,6 @@ public class DetailActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
-
-
         if (intent != null && intent.hasExtra("Object")) {
             //music = intent.getStringExtra(Intent.EXTRA_TEXT);
             music = (MusicData) intent.getSerializableExtra("Object");
@@ -48,7 +46,6 @@ public class DetailActivityFragment extends Fragment {
             // .setText(mForecastStr);
         }
         musicID = music.id.id;
-        artistName = music.artist;
 
         FetchTrackTask trackTask = new FetchTrackTask();
         trackTask.execute(music.id.id);
@@ -59,6 +56,24 @@ public class DetailActivityFragment extends Fragment {
 
         ListView listView = (ListView) rootView.findViewById(R.id.listview_detail);
         listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
+
+
+        //listener for listview and sent intent to mediaPlayer
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                MusicData music = mDetailAdapter.getItem(position);
+
+                Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
+                        .putExtra("Object", music)
+                        .putExtra("artist", music.artist);
+                startActivity(mediaPlayer);
+                //Reference
+                //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
+            }
+        });
+
 
         return rootView;
     }
