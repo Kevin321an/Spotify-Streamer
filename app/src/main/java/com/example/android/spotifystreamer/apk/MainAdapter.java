@@ -25,6 +25,7 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
     private Context mContext;
 
     //public MainAdapter(Activity context,
+    //String[] songName, String[] image, String[] album) {
     public MainAdapter(Activity context, int resource, ArrayList<MusicData> music) {
         super(context, resource, music);
         this.mResource = resource;
@@ -34,6 +35,13 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
 
 
     }
+    class ViewHodler {
+        // declare your views here
+        TextView artist;
+        ImageView iconImage;
+        TextView trackName;
+        TextView albumName;
+    }
 
 
     @Override
@@ -42,43 +50,61 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
                // Get the data item for this position
         MusicData music = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
+        ViewHodler holder;
         if (view == null) {
             layout = new LinearLayout(getContext());
             ((LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                     .inflate(mResource, layout, true);
+            holder = new ViewHodler();
+            holder.artist=((TextView) layout.findViewById(R.id.list_item_artist_textview));
+            holder.iconImage = (ImageView) layout.findViewById(R.id.list_artists_imageview);
+            holder.trackName=((TextView) layout.findViewById(R.id.list_item_song_textview));
+            holder.albumName=((TextView) layout.findViewById(R.id.list_item_ablum_textview));
+
+            layout.setTag(holder);
 
             // rootView = LayoutInflater.from(getContext()).inflate(R.layout.list_item_artist_textview, parent, false);
         } else {
             layout = (LinearLayout) view;
+            holder = (ViewHodler) view.getTag();
         }
         //!!!!!!!!!!!!!!!!!THere was a bug as the rooView was not being inflate every time.
         if (mResource == R.layout.list_item_artist_textview) {
 
+
             //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
-            ((TextView) layout.findViewById(R.id.list_item_artist_textview)).setText(music.artist);
+            holder.artist.setText(music.artist);
 
             //songNameView.setText(songName[position]);
             //songNameView.setText(music.artist);
+
+
             if (music.image != null) {
-                ImageView iconView = (ImageView) layout.findViewById(R.id.list_artists_imageview);
+
                 //iconView.setImageResource(R.drawable.ic_launcher);
                 //Picasso.with(context).load(image[position]).into(iconView);
                 try {
-                    Picasso.with(mContext).load(music.image).into(iconView);
+                    Picasso.with(mContext).load(music.image).into(holder.iconImage);
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
+
             }
         }
         else if (mResource == R.layout.list_item_artist_ablum) {
+            holder.trackName.setText(music.id.trackName);
+            holder.albumName.setText(music.id.albumName);
+
 
             //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
-            ((TextView) layout.findViewById(R.id.list_item_song_textview)).setText(music.id.trackName);
-            ((TextView) layout.findViewById(R.id.list_item_ablum_textview)).setText(music.id.albumName);
+
 
             //songNameView.setText(songName[position]);
             //songNameView.setText(music.artist);
+
+
             if (music.id.albumImage300 != null) {
                 ImageView iconView = (ImageView) layout.findViewById(R.id.list_ablum_imageview);
                 //iconView.setImageResource(R.drawable.ic_launcher);
@@ -89,6 +115,8 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+
+
             }
         }
 

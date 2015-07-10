@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Created by FM on 6/17/2015.
  */
 @SuppressWarnings("serial") //with this annotation are going to hide compiler warning
-public class MusicData implements Serializable{
+public class MusicData implements Serializable {
     public String artist;
     public String image;
 //    Here would be a Null Pointer Exception err if do not initialize the id
@@ -16,6 +16,19 @@ public class MusicData implements Serializable{
         this.image=image;
         this.id.id=id;
     }
+    /*  public int describeContents() {
+        return 0;
+    }
+    public void writeToParcel(Parcel out, int flags) {
+        out.writeString(artist);
+        out.writeString(image);
+    }
+    private MusicData(Parcel in) {
+        artist = in.readString();
+        image = in.readString();
+    }
+*/
+
     public MusicData(String id, String trackName, String albumName, String albumImage600, String albumImage300, String previewURL){
         this.id.id=id;
         this.id.trackName=trackName;

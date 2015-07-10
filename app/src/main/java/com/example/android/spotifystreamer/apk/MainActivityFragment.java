@@ -39,6 +39,9 @@ public class MainActivityFragment extends Fragment {
 
     EditText searchBar;
     private boolean dataIsNull=false;
+    private static final String SAVE_PAGE_KEY = "save_page";
+    private ListView listView;//store the current list.
+    private Bundle mListInstanceState;
     //SearchView searchBar;
     //private ArrayAdapter<String> mArtistListAdapter;
     private MainAdapter mArtistListAdapter;
@@ -65,7 +68,13 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Add this line in order for this fragment to handle menu events.
+        // Add this line in order for this fragment to handle menu events
+        // if(savedInstanceState!=null) {
+        //Save the ListView state on onSaveInstanceState:
+        if(savedInstanceState!=null) {
+            //mListInstanceState = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
+        }
+
         setHasOptionsMenu(false);
     }
     @Override
@@ -113,8 +122,12 @@ public class MainActivityFragment extends Fragment {
         //      (getActivity(), R.layout.list_item_artist_textview,
         //             R.id.list_item_artist_textview, listArtist);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_artist);
+        listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
+        if(mListInstanceState!=null){
+            listView.onRestoreInstanceState(mListInstanceState);
+            //setListAdapter(new ArrayAdapter<MusicData>(this, android.R.layout.listview_artist, list));
+        }
         //Listener for searchBar
         /*
         searchBar=(SearchView)rootView.findViewById(R.id.artists_search_bar);
@@ -328,6 +341,16 @@ public class MainActivityFragment extends Fragment {
 
         }
     }
+
+    //Save the ListView state on onSaveInstanceState:
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
+    }
+
+
+
 }
 
 

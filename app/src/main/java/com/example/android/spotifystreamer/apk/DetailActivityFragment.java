@@ -32,6 +32,7 @@ public class DetailActivityFragment extends Fragment {
     private MusicData music;
     private String musicID;
     private MainAdapter mDetailAdapter;
+    private String artist;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +47,7 @@ public class DetailActivityFragment extends Fragment {
             // .setText(mForecastStr);
         }
         musicID = music.id.id;
-
+        artist=music.artist;
         FetchTrackTask trackTask = new FetchTrackTask();
         trackTask.execute(music.id.id);
         mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
@@ -67,7 +68,7 @@ public class DetailActivityFragment extends Fragment {
 
                 Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
                         .putExtra("Object", music)
-                        .putExtra("artist", music.artist);
+                        .putExtra(Intent.EXTRA_TEXT, artist);
                 startActivity(mediaPlayer);
                 //Reference
                 //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
