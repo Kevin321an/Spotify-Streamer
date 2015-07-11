@@ -34,17 +34,26 @@ public class MusicPlay extends ActionBarActivity implements AudioManager.OnAudio
 
     private SeekBar seekbar;
     private MusicData music;
+    private MusicData onSaveMusic;
+    private static final String SAVE_PAGE_KEY = "save_page";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_media_player);
-        Intent intent = getIntent();
-        if (intent != null && intent.hasExtra("Object")) {
-            music = (MusicData) intent.getSerializableExtra("Object");
-            artist= intent.getStringExtra(Intent.EXTRA_TEXT);
+
+        if (savedInstanceState != null) {
+            onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
+            music=onSaveMusic;
+        } else {
+            Intent intent = getIntent();
+            if (intent != null && intent.hasExtra("Object")) {
+                music = (MusicData) intent.getExtras().getParcelable("Object");
+                artist= intent.getStringExtra(Intent.EXTRA_TEXT);
+            }
         }
+
         initializeViews();
     }
     public void initializeViews(){
@@ -99,10 +108,11 @@ public class MusicPlay extends ActionBarActivity implements AudioManager.OnAudio
                 if (isPlaying) {
                     mediaPlayer.pause();
                     //playPause.setImageResource(getResources().getDrawable(android.R.drawable.presence_busy));
-                    playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+                    playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
                 } else {
                     play(playPause);
-                    playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+                    playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+
                 }
                 isPlaying = !isPlaying;
             }
@@ -213,6 +223,18 @@ public class MusicPlay extends ActionBarActivity implements AudioManager.OnAudio
 
     @Override
     public void onDestroy() {
-        if (mediaPlayer != null) mediaPlayer.release();
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            durationHandler.removeCallbacks(updateSeekBarTime);
+            mediaPlayer=null;
+        }
+    }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
+        outState.putParcelable(SAVE_PAGE_KEY, onSaveMusic);
+        super.onSaveInstanceState(outState);
+        System.out.print("onSaveInstance");
     }
 }

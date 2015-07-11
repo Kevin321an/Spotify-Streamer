@@ -15,12 +15,19 @@ public class DetailActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+        /* if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.top10Track_detail_container, new DetailActivityFragment())
+                    .commit();
+        }*/
+
 
         ActionBar actionBar = getSupportActionBar();
         Intent intent=getIntent();
+        //Bundle data = getIntent().getExtras();
 
         if (intent != null && intent.hasExtra("Object")) {
-            music = (MusicData) intent.getSerializableExtra("Object");
+            music = (MusicData) intent.getExtras().getParcelable("Object");
         }
 
         if(actionBar != null) {

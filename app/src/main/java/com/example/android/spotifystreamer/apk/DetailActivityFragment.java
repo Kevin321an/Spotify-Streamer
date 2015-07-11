@@ -40,9 +40,11 @@ public class DetailActivityFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
+        //Bundle data = getActivity().getIntent().getExtras();
         if (intent != null && intent.hasExtra("Object")) {
             //music = intent.getStringExtra(Intent.EXTRA_TEXT);
-            music = (MusicData) intent.getSerializableExtra("Object");
+            //music = (MusicData) intent.getParcelableArrayListExtra("Object");
+            music = (MusicData)intent.getExtras().getParcelable("Object");
             //((TextView) rootView.findViewById(R.id.detail_text))
             // .setText(mForecastStr);
         }
@@ -239,7 +241,6 @@ public class DetailActivityFragment extends Fragment {
             if (result != null) {
                 mDetailAdapter.clear();
                 mDetailAdapter.addAll(result);
-
                 //for (String Str : result) {
                 //   mArtistListAdapter.add(Str);
                 //}

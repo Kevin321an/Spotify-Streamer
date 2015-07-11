@@ -37,14 +37,26 @@ import java.util.ArrayList;
  */
 public class MainActivityFragment extends Fragment {
 
-    EditText searchBar;
-    private boolean dataIsNull=false;
     private static final String SAVE_PAGE_KEY = "save_page";
+    final String ARTIST_BASE_URL = "https://api.spotify.com/v1/search?";
+    final String QUERY_PARAM = "q";
+    final String TYPE_PARAM = "type";
+    EditText searchBar;
+    private boolean dataIsNull = false;
     private ListView listView;//store the current list.
-    private Bundle mListInstanceState;
+
+    //for test
+    /*private void updateArtistList() {
+        FetchArtistTask artistTask = new FetchArtistTask();
+        artistTask.execute("tania");
+    }
+
+    * */
+    private ArrayList<MusicData> mListInstanceState;
     //SearchView searchBar;
     //private ArrayAdapter<String> mArtistListAdapter;
     private MainAdapter mArtistListAdapter;
+
     //String[] id;
     //String[] imagesUrlS={"https://i.scdn.co/image/f444d668bfa1a057e1759c6266f8fbf471eb6c04", "https://i.scdn.co/image/48c420405d19d09381d5541d239a9b7ae9bd3ed8"};
     /*
@@ -57,31 +69,31 @@ public class MainActivityFragment extends Fragment {
     public MainActivityFragment() {
     }
 
-    //for test
-    /*private void updateArtistList() {
-        FetchArtistTask artistTask = new FetchArtistTask();
-        artistTask.execute("tania");
-    }
-
-    * */
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events
         // if(savedInstanceState!=null) {
         //Save the ListView state on onSaveInstanceState:
-        if(savedInstanceState!=null) {
-            //mListInstanceState = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
+        /*if(savedInstanceState!=null) {
+            mListInstanceState = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
+        }*/
+
+        if (savedInstanceState != null) {
+            mListInstanceState = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
+        } else {
+            mListInstanceState = new ArrayList<MusicData>();
         }
 
         setHasOptionsMenu(false);
     }
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.refresh, menu);
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -96,7 +108,6 @@ public class MainActivityFragment extends Fragment {
 
         return super.onOptionsItemSelected(item);
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -117,17 +128,17 @@ public class MainActivityFragment extends Fragment {
         *
         * */
 
-        mArtistListAdapter = new MainAdapter(getActivity(),R.layout.list_item_artist_textview, new ArrayList<MusicData>());
+        mArtistListAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_textview, mListInstanceState);
         //mArtistListAdapter=new ArrayAdapter<String>
         //      (getActivity(), R.layout.list_item_artist_textview,
         //             R.id.list_item_artist_textview, listArtist);
 
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
-        if(mListInstanceState!=null){
-            listView.onRestoreInstanceState(mListInstanceState);
-            //setListAdapter(new ArrayAdapter<MusicData>(this, android.R.layout.listview_artist, list));
-        }
+        //if(mListInstanceState!=null){
+        //.onRestoreInstanceState(mListInstanceState);
+        //setListAdapter(new ArrayAdapter<MusicData>(this, android.R.layout.listview_artist, list));
+        //}
         //Listener for searchBar
         /*
         searchBar=(SearchView)rootView.findViewById(R.id.artists_search_bar);
@@ -147,7 +158,7 @@ public class MainActivityFragment extends Fragment {
         });
         */
         //Listener for EditText
-        searchBar=(EditText)rootView.findViewById(R.id.artists_search_bar);
+        searchBar = (EditText) rootView.findViewById(R.id.artists_search_bar);
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
@@ -155,10 +166,10 @@ public class MainActivityFragment extends Fragment {
                 if (!s.toString().isEmpty()) {
                     performSearch(s.toString());
                 }
-                final String NO_RESULT="Sorry, we do not have this artist";
-                if (dataIsNull&&s.length()>3){
+                final String NO_RESULT = "Sorry, we do not have this artist";
+                if (dataIsNull && s.length() > 3) {
                     Toast.makeText(getActivity(), NO_RESULT, Toast.LENGTH_SHORT).show();
-                    dataIsNull=false;
+                    dataIsNull = false;
                 }
             }
 
@@ -172,6 +183,7 @@ public class MainActivityFragment extends Fragment {
 
             private void performSearch(String search) {
                 FetchArtistTask artistTask = new FetchArtistTask();
+                System.out.println("research");
                 artistTask.execute(search);
             }
         });
@@ -182,10 +194,10 @@ public class MainActivityFragment extends Fragment {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                 MusicData music= mArtistListAdapter.getItem(position);
+                MusicData music = mArtistListAdapter.getItem(position);
                 //Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
                 Intent showDetail = new Intent(getActivity(), DetailActivity.class)
-                        .putExtra("Object", music );
+                        .putExtra("Object", music);
                 startActivity(showDetail);
                 //Reference
                 //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
@@ -193,9 +205,17 @@ public class MainActivityFragment extends Fragment {
         });
         return rootView;
     }
-                final String ARTIST_BASE_URL = "https://api.spotify.com/v1/search?";
-                final String QUERY_PARAM = "q";
-                final String TYPE_PARAM = "type";
+
+    //Save the ListView state on onSaveInstanceState:
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+
+        //outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
+        outState.putParcelableArrayList(SAVE_PAGE_KEY, mListInstanceState);
+        super.onSaveInstanceState(outState);
+        System.out.print("onSaveInstance");
+    }
+
     public class FetchArtistTask extends AsyncTask<String, Void, ArrayList<MusicData>> {
         private final String LOG_TAG = FetchArtistTask.class.getSimpleName();
 
@@ -273,10 +293,9 @@ public class MainActivityFragment extends Fragment {
         }
 
 
-
         private ArrayList<MusicData> getArtistDataFromJson(String musicJsonStr)
                 throws JSONException {
-             ArrayList<MusicData> music;
+            ArrayList<MusicData> music;
 
             //Log.v(LOG_TAG, "artisList JSON String"+musicJsonStr);
 
@@ -289,8 +308,8 @@ public class MainActivityFragment extends Fragment {
             JSONArray musicArray = musicJson.getJSONArray(SPOTIFY_ITEMS);
             //Log.v(LOG_TAG, "artisList JSON String"+musicArray.toString());
             int numberOfAritist = musicArray.length();
-            if (numberOfAritist==0){
-                dataIsNull=true;
+            if (numberOfAritist == 0) {
+                dataIsNull = true;
             }
 
             music = new ArrayList<MusicData>();
@@ -330,6 +349,7 @@ public class MainActivityFragment extends Fragment {
             return music;
 
         }
+
         protected void onPostExecute(ArrayList<MusicData> result) {
             if (result != null) {
                 mArtistListAdapter.clear();
@@ -341,14 +361,6 @@ public class MainActivityFragment extends Fragment {
 
         }
     }
-
-    //Save the ListView state on onSaveInstanceState:
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
-    }
-
 
 
 }

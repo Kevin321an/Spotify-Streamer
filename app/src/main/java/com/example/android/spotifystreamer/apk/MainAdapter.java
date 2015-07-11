@@ -32,8 +32,6 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
 
         //super(context, R.layout.list_item_artist_textview, songName);
         this.mContext = context;
-
-
     }
     class ViewHodler {
         // declare your views here
