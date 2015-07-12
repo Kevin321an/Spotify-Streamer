@@ -8,4 +8,10 @@
         <item name="colorButtonNormal">#FF9800</item>
 
     </style>
+
+    <!-- Style for forecast listview -->
+    <style name="MusicListStyle">
+        <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
+        for two-pane layout -->
+    </style>
 </resources>

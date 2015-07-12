@@ -1,12 +1,13 @@
 package com.example.android.spotifystreamer.apk;
 
-import android.support.v7.app.ActionBarActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements MainActivityFragment.Callback {
 
     private boolean mTwoPane;
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
@@ -60,5 +61,24 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onItemSelected(MusicData trackList){
+        if(mTwoPane){
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args=new Bundle();
+            args.putParcelable(DetailActivityFragment.DETAIL_URI, trackList);
+            DetailActivityFragment fragment=new DetailActivityFragment();
+            fragment.setArguments(args);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.top10Track_detail_container, fragment,DETAILFRAGMENT_TAG)
+                    .commit();
+        }else{
+            Intent intent=new Intent(this, DetailActivity.class)
+                    .putExtra("Object", trackList);
+            startActivity(intent);
+        }
     }
 }

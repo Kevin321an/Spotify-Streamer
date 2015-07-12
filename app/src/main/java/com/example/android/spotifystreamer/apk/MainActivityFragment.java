@@ -1,6 +1,5 @@
 package com.example.android.spotifystreamer.apk;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -66,6 +65,9 @@ public class MainActivityFragment extends Fragment {
         updateArtistList();
     }
     */
+    public interface Callback{
+        public void onItemSelected(MusicData trackList);
+    }
     public MainActivityFragment() {
     }
 
@@ -196,9 +198,11 @@ public class MainActivityFragment extends Fragment {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 MusicData music = mArtistListAdapter.getItem(position);
                 //Toast.makeText(getActivity(), forecast, Toast.LENGTH_SHORT).show();
-                Intent showDetail = new Intent(getActivity(), DetailActivity.class)
+                /*Intent showDetail = new Intent(getActivity(), DetailActivity.class)
                         .putExtra("Object", music);
-                startActivity(showDetail);
+                startActivity(showDetail);*/
+                ((Callback) getActivity()).onItemSelected(music);
+
                 //Reference
                 //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
             }

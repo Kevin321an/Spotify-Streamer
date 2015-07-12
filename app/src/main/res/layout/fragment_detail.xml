@@ -10,20 +10,12 @@
 
     >
     <!-- tools:context="com.example.android.spotifystreamer.apk.DetailActivityFragment"-->
-
-
-
     <ListView
         style="@style/AppTheme"
         android:id="@+id/listview_detail"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null">
-
     </ListView>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="songName"/>
 
 </RelativeLayout>

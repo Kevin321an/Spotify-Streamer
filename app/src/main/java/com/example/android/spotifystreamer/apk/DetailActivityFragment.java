@@ -29,6 +29,7 @@ import java.util.ArrayList;
  * A placeholder fragment containing a simple view.
  */
 public class DetailActivityFragment extends Fragment {
+    static final String DETAIL_URI="URI";
     private MusicData music;
     private String musicID;
     private MainAdapter mDetailAdapter;
@@ -37,6 +38,11 @@ public class DetailActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Bundle arguments =getArguments();
+        if(arguments!=null){
+            music=arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
+
+        }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
