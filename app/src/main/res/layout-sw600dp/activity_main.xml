@@ -12,7 +12,7 @@
     -->
 
     <fragment
-        android:id="@+id/fragment_forecast"
+        android:id="@+id/artist_fragment"
         android:name="com.example.android.spotifystreamer.apk.MainActivityFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"

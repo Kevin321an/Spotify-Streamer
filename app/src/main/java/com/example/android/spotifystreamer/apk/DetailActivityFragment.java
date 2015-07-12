@@ -48,34 +48,38 @@ public class DetailActivityFragment extends Fragment {
             //((TextView) rootView.findViewById(R.id.detail_text))
             // .setText(mForecastStr);
         }
-        musicID = music.id.id;
-        artist=music.artist;
-        FetchTrackTask trackTask = new FetchTrackTask();
-        trackTask.execute(music.id.id);
-        mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
-        //mArtistListAdapter=new ArrayAdapter<String>
-        //      (getActivity(), R.layout.list_item_artist_textview,
-        //             R.id.list_item_artist_textview, listArtist);
+        if (music!=null){
+            musicID = music.id.id;
+            artist=music.artist;
+            FetchTrackTask trackTask = new FetchTrackTask();
+            trackTask.execute(music.id.id);
+            mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
+            //mArtistListAdapter=new ArrayAdapter<String>
+            //      (getActivity(), R.layout.list_item_artist_textview,
+            //             R.id.list_item_artist_textview, listArtist);
 
-        ListView listView = (ListView) rootView.findViewById(R.id.listview_detail);
-        listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
+            ListView listView = (ListView) rootView.findViewById(R.id.listview_detail);
+            listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
 
 
-        //listener for listview and sent intent to mediaPlayer
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            //listener for listview and sent intent to mediaPlayer
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                MusicData music = mDetailAdapter.getItem(position);
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    MusicData music = mDetailAdapter.getItem(position);
 
-                Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
-                        .putExtra("Object", music)
-                        .putExtra(Intent.EXTRA_TEXT, artist);
-                startActivity(mediaPlayer);
-                //Reference
-                //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
-            }
-        });
+                    Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
+                            .putExtra("Object", music)
+                            .putExtra(Intent.EXTRA_TEXT, artist);
+                    startActivity(mediaPlayer);
+                    //Reference
+                    //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
+                }
+            });
+
+        }
+
 
 
         return rootView;

@@ -15,11 +15,11 @@ public class DetailActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-        /* if (savedInstanceState == null) {
+         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.top10Track_detail_container, new DetailActivityFragment())
                     .commit();
-        }*/
+        }
 
 
         ActionBar actionBar = getSupportActionBar();
