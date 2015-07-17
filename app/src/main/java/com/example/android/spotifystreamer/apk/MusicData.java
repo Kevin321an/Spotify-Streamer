@@ -22,12 +22,14 @@ public class MusicData implements Parcelable {
 
     public String artist;
     public String image;
+    public String image1000;
     //    Here would be a Null Pointer Exception err if do not initialize the id
     public TrackData id = new TrackData();
 
     public MusicData(String artist, String image, String id) {
         this.artist = artist;
         this.image = image;
+
         this.id.id = id;
     }
 

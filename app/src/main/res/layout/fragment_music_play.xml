@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
+    android:id="@+id/fragment_music_play"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
@@ -9,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.example.android.spotifystreamer.apk.MusicPlay"
+    tools:context="com.example.android.spotifystreamer.apk.MusicPlayFragment"
     style="@style/AppTheme">
 
     <TextView
@@ -17,28 +17,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="songName" />
+         />
 
     <TextView
         android:id="@+id/Ablume"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="songName" />
+         />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:id="@+id/palyImg"
-        android:padding="@dimen/abc_action_bar_content_inset_material" />
+         />
 
     <TextView
         android:id="@+id/songName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="songName" />
+         />
     <RelativeLayout
         android:layout_width="fill_parent"
         android:orientation="horizontal"
@@ -48,13 +48,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:text="@string/runTime" />
+             />
         <TextView
             android:id="@+id/songDuration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:text="Duration" />
+             />
 
     </RelativeLayout>
 
@@ -71,12 +71,13 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/media_rew"
+            android:id="@+id/media_bb"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="14dp"
+            android:src="@android:drawable/ic_media_rew"
             android:onClick="backward"
-            android:src="@android:drawable/ic_media_rew" />
+            android:nestedScrollingEnabled="true" />
 
         <ImageButton
             android:id="@+id/media_play"

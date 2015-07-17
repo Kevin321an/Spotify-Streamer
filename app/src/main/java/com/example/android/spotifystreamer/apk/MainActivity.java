@@ -9,8 +9,11 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity implements MainActivityFragment.Callback {
 
-    private boolean mTwoPane;
+    private static boolean mTwoPane;
     private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static boolean getMTwoPane(){
+        return mTwoPane;
+    }
 
 
     @Override
@@ -22,6 +25,7 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
             // (res/layout-sw600dp). If this view is present, then the activity should be
             // in two-pane mode.
             mTwoPane = true;
+
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -38,8 +42,6 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
 
 
         }
-        MainActivityFragment forecastFragment =  ((MainActivityFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.artist_fragment));
 
     }
 
@@ -65,11 +67,17 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
     @Override
     public void onItemSelected(MusicData trackList){
         if(mTwoPane){
+
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
             Bundle args=new Bundle();
             args.putParcelable(DetailActivityFragment.DETAIL_URI, trackList);
+
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setSubtitle(trackList.artist);
+
+
             DetailActivityFragment fragment=new DetailActivityFragment();
             fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()

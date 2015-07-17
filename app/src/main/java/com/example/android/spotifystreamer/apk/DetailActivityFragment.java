@@ -1,5 +1,6 @@
 package com.example.android.spotifystreamer.apk;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -57,12 +58,15 @@ public class DetailActivityFragment extends Fragment {
         if (music!=null){
             musicID = music.id.id;
             artist=music.artist;
+
+
             FetchTrackTask trackTask = new FetchTrackTask();
             trackTask.execute(music.id.id);
             mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
             //mArtistListAdapter=new ArrayAdapter<String>
             //      (getActivity(), R.layout.list_item_artist_textview,
             //             R.id.list_item_artist_textview, listArtist);
+
 
             ListView listView = (ListView) rootView.findViewById(R.id.listview_detail);
             listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
@@ -75,16 +79,47 @@ public class DetailActivityFragment extends Fragment {
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                     MusicData music = mDetailAdapter.getItem(position);
 
-                    Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
+                    /* Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
                             .putExtra("Object", music)
                             .putExtra(Intent.EXTRA_TEXT, artist);
-                    startActivity(mediaPlayer);
+                    startActivity(mediaPlayer);*/
+                    if (MainActivity.getMTwoPane()){
+                        MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist);
+                        dialog.show(getActivity().getFragmentManager(),DETAIL_URI);
+
+                    }else {
+                        Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
+                                .putExtra("Object", music)
+                                .putExtra(Intent.EXTRA_TEXT, artist);
+                        startActivity(mediaPlayer);
+
+
+                                /*MusicPlayFragment fragment = MusicPlayFragment.newInstance(music);
+                        getFragmentManager().beginTransaction()
+                                .add(R.id.fragment_music_play,fragment)
+                                .commit();
+
+                        // The device is smaller, so show the fragment fullscreen
+                        FragmentManager fm = getActivity().getFragmentManager();
+                        FragmentTransaction transaction = fm.beginTransaction();
+                        // For a little polish, specify a transition animation
+                        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                        // To make it fullscreen, use the 'content' root view as the container
+                        // for the fragment, which is always the root view for the activity
+                        transaction.add(android.R.id.content, dialog)
+                                .addToBackStack(null).commit();*/
+
+
+                    }
+
                     //Reference
                     //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
                 }
             });
 
         }
+
+
 
 
 

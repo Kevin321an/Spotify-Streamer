@@ -36,7 +36,7 @@ public class DetailActivity extends ActionBarActivity {
             music = (MusicData) intent.getExtras().getParcelable("Object");
         }
 
-        if(actionBar != null) {
+        if(actionBar != null&&!MainActivity.getMTwoPane()) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setSubtitle(music.artist);
         }
