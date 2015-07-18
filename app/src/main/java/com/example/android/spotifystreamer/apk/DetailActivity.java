@@ -1,19 +1,18 @@
 package com.example.android.spotifystreamer.apk;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class DetailActivity <S extends Scrollable>extends ActionBarActivity implements ObservableScrollViewCallbacks{
+public class DetailActivity extends AppCompatActivity {
 
     private MusicData music;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().hide();
         setContentView(R.layout.activity_detail);
          if (savedInstanceState == null) {
              // Create the detail fragment and add it to the activity
@@ -28,6 +27,9 @@ public class DetailActivity <S extends Scrollable>extends ActionBarActivity impl
         }
 
 
+
+        /*
+        //set title which will be called from fragment
         ActionBar actionBar = getSupportActionBar();
         Intent intent=getIntent();
         //Bundle data = getIntent().getExtras();
@@ -38,8 +40,9 @@ public class DetailActivity <S extends Scrollable>extends ActionBarActivity impl
 
         if(actionBar != null&&!MainActivity.getMTwoPane()) {
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setSubtitle(music.artist);
+            actionBar.setTitle(music.artist);
         }
+        */
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

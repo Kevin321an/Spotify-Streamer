@@ -1,18 +1,31 @@
 package com.example.android.spotifystreamer.apk;
 
+import android.animation.ValueAnimator;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
+import com.github.ksoichiro.android.observablescrollview.Scrollable;
+import com.nineoldandroids.view.ViewHelper;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -31,12 +44,30 @@ import java.util.ArrayList;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailActivityFragment extends Fragment {
+public class DetailActivityFragment <S extends Scrollable>extends Fragment implements ObservableScrollViewCallbacks {
     static final String DETAIL_URI="URI";
     private MusicData music;
     private String musicID;
     private MainAdapter mDetailAdapter;
     private String artist,imageLarge;
+
+
+    protected View mHeader;
+    protected int mFlexibleSpaceImageHeight;
+    protected View mHeaderBar;
+    protected View mListBackgroundView;
+    protected int mActionBarSize;
+    protected int mIntersectionHeight;
+
+    private View mImage;
+    private View mHeaderBackground;
+    private int mPrevScrollY;
+    private boolean mGapIsChanging;
+    private boolean mGapHidden;
+    private boolean mReady;
+    private View detailRootView;
+    private ObservableListView listView;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +77,7 @@ public class DetailActivityFragment extends Fragment {
             music=arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
 
         }
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        detailRootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
 
         if (intent != null && intent.hasExtra("Object")) {
@@ -59,16 +90,43 @@ public class DetailActivityFragment extends Fragment {
             artist=music.artist;
             imageLarge=music.image1000;
             //fetch the artist pic in detail activity
-            if(!MainActivity.getMTwoPane()){
                 if (imageLarge != null) {
                     try {
-                        Picasso.with(getActivity().getBaseContext()).load(imageLarge).into((ImageView) rootView.findViewById(R.id.imageLarge));
+                        Picasso.with(getActivity().getBaseContext()).load(imageLarge).into((ImageView) detailRootView.findViewById(R.id.image));
 
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                }else {
+                    Picasso.with(getActivity().getBaseContext()).load(R.drawable.example).into((ImageView) detailRootView.findViewById(R.id.image));
                 }
-            }
+
+
+            //this part for fillGap view
+            int image_height=MainActivity.getMTwoPane()?R.dimen.flexible_space_image_height_mTwoPane:R.dimen.flexible_space_image_height;
+            mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(image_height);
+            mActionBarSize = getActionBarSize();
+
+            // Even when the top gap has began to change, header bar still can move
+            // within mIntersectionHeight.
+            mIntersectionHeight = getResources().getDimensionPixelSize(R.dimen.intersection_height);
+            mImage = detailRootView.findViewById(R.id.image);
+            mHeader = detailRootView.findViewById(R.id.header);
+            mHeaderBar = detailRootView.findViewById(R.id.header_bar);
+            mHeaderBackground = detailRootView.findViewById(R.id.header_background);
+            mListBackgroundView = detailRootView.findViewById(R.id.list_background);
+            ((TextView) detailRootView.findViewById(R.id.title)).setText(artist);
+            //getActivity().setTitle(null);
+            final ObservableListView scrollable = createScrollable();
+            ScrollUtils.addOnGlobalLayoutListener((View) scrollable, new Runnable() {
+                @Override
+                public void run() {
+                    mReady = true;
+                    updateViews(scrollable.getCurrentScrollY(), false);
+                }
+            });
+
+            //*************************
 
             FetchTrackTask trackTask = new FetchTrackTask();
             trackTask.execute(music.id.id);
@@ -78,7 +136,7 @@ public class DetailActivityFragment extends Fragment {
             //             R.id.list_item_artist_textview, listArtist);
 
 
-            ListView listView = (ListView) rootView.findViewById(R.id.listview_detail);
+            listView = (ObservableListView) detailRootView.findViewById(R.id.listview_detail);
             listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
 
 
@@ -87,20 +145,27 @@ public class DetailActivityFragment extends Fragment {
 
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                    MusicData music = mDetailAdapter.getItem(position);
+                    //MusicData music = mDetailAdapter.getItem(position);
+                    final  int NUMBER_OF_TRACK=10;
+                    ArrayList<MusicData>music=new ArrayList<MusicData>();
+                    for (int i=0;i<NUMBER_OF_TRACK;i++){
+                        music.add(mDetailAdapter.getItem(i));
+                    }
 
                     /* Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
                             .putExtra("Object", music)
                             .putExtra(Intent.EXTRA_TEXT, artist);
                     startActivity(mediaPlayer);*/
                     if (MainActivity.getMTwoPane()){
-                        MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist);
+                        MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist,position);
                         dialog.show(getActivity().getFragmentManager(),DETAIL_URI);
 
                     }else {
                         Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
                                 .putExtra("Object", music)
-                                .putExtra(Intent.EXTRA_TEXT, artist);
+                                .putExtra(Intent.EXTRA_TEXT, artist)
+                                .putExtra("position",position);
+
                         startActivity(mediaPlayer);
 
 
@@ -133,8 +198,136 @@ public class DetailActivityFragment extends Fragment {
 
 
 
-        return rootView;
+        return detailRootView;
     }
+
+    //**
+    // *this part for fill gap view
+    protected int getActionBarSize() {
+        TypedValue typedValue = new TypedValue();
+        int[] textSizeAttr = new int[]{R.attr.actionBarSize};
+        int indexOfAttrTextSize = 0;
+        TypedArray a = getActivity().obtainStyledAttributes(typedValue.data, textSizeAttr);
+        int actionBarSize = a.getDimensionPixelSize(indexOfAttrTextSize, -1);
+        a.recycle();
+        return actionBarSize;
+    }
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        updateViews(scrollY, true);
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollState) {
+    }
+
+    protected void updateViews(int scrollY, boolean animated) {
+        // If it's ListView, onScrollChanged is called before ListView is laid out (onGlobalLayout).
+        // This causes weird animation when onRestoreInstanceState occurred,
+        // so we check if it's laid out already.
+        if (!mReady) {
+            return;
+        }
+        // Translate image
+        ViewHelper.setTranslationY(mImage, -scrollY / 2);
+
+
+        // Translate header
+        ViewHelper.setTranslationY(mHeader, getHeaderTranslationY(scrollY));
+
+        // Show/hide gap
+        final int headerHeight = mHeaderBar.getHeight();
+        boolean scrollUp = mPrevScrollY < scrollY;
+        if (scrollUp) {
+            if (mFlexibleSpaceImageHeight - headerHeight - mActionBarSize <= scrollY) {
+                changeHeaderBackgroundHeightAnimated(false, animated);
+            }
+        } else {
+            if (scrollY <= mFlexibleSpaceImageHeight - headerHeight - mActionBarSize) {
+                changeHeaderBackgroundHeightAnimated(true, animated);
+            }
+        }
+        mPrevScrollY = scrollY;
+
+        // Translate list background
+        ViewHelper.setTranslationY(mListBackgroundView, ViewHelper.getTranslationY(mHeader));
+    }
+
+    protected float getHeaderTranslationY(int scrollY) {
+        return ScrollUtils.getFloat(-scrollY + mFlexibleSpaceImageHeight - mHeaderBar.getHeight(), 0, Float.MAX_VALUE);
+    }
+
+    private void changeHeaderBackgroundHeightAnimated(boolean shouldShowGap, boolean animated) {
+        if (mGapIsChanging) {
+            return;
+        }
+        final int heightOnGapShown = mHeaderBar.getHeight();
+        final int heightOnGapHidden = mHeaderBar.getHeight() + mActionBarSize;
+        final float from = mHeaderBackground.getLayoutParams().height;
+        final float to;
+        if (shouldShowGap) {
+            if (!mGapHidden) {
+                // Already shown
+                return;
+            }
+            to = heightOnGapShown;
+        } else {
+            if (mGapHidden) {
+                // Already hidden
+                return;
+            }
+            to = heightOnGapHidden;
+        }
+        if (animated) {
+            com.nineoldandroids.view.ViewPropertyAnimator.animate(mHeaderBackground).cancel();
+            ValueAnimator a = ValueAnimator.ofFloat(from, to);
+            a.setDuration(100);
+            a.setInterpolator(new AccelerateDecelerateInterpolator());
+            a.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    float height = (float) animation.getAnimatedValue();
+                    changeHeaderBackgroundHeight(height, to, heightOnGapHidden);
+                }
+            });
+            a.start();
+        } else {
+            changeHeaderBackgroundHeight(to, to, heightOnGapHidden);
+        }
+    }
+
+    private void changeHeaderBackgroundHeight(float height, float to, float heightOnGapHidden) {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mHeaderBackground.getLayoutParams();
+        lp.height = (int) height;
+        lp.topMargin = (int) (mHeaderBar.getHeight() - height);
+        mHeaderBackground.requestLayout();
+        mGapIsChanging = (height != to);
+        if (!mGapIsChanging) {
+            mGapHidden = (height == heightOnGapHidden);
+        }
+    }
+
+    protected ObservableListView createScrollable() {
+        ObservableListView listView = (ObservableListView) detailRootView.findViewById(R.id.listview_detail);
+        listView.setScrollViewCallbacks(this);
+        setDummyDataWithHeader(listView, mFlexibleSpaceImageHeight);
+        return listView;
+    }
+
+    protected void setDummyDataWithHeader(ListView listView, int headerHeight) {
+        View headerView = new View(getActivity());
+        headerView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, headerHeight));
+        headerView.setMinimumHeight(headerHeight);
+        // This is required to disable header's list selector effect
+        headerView.setClickable(true);
+        listView.addHeaderView(headerView);
+    }
+
+
 
     public class FetchTrackTask extends AsyncTask<String, Void, ArrayList<MusicData>> {
         private final String LOG_TAG = FetchTrackTask.class.getSimpleName();

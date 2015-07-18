@@ -69,6 +69,13 @@
         android:layout_marginTop="30dp"
         android:gravity="center_horizontal"
         android:orientation="horizontal">
+        <ImageButton
+            android:id="@+id/previous"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="14dp"
+            android:src="@android:drawable/ic_media_previous"
+            android:nestedScrollingEnabled="true" />
 
         <ImageButton
             android:id="@+id/media_bb"
@@ -94,6 +101,13 @@
             android:layout_marginLeft="14dp"
             android:onClick="forward"
             android:src="@android:drawable/ic_media_ff" />
+        <ImageButton
+            android:id="@+id/next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="14dp"
+            android:src="@android:drawable/ic_media_next"
+            android:nestedScrollingEnabled="true" />
 
     </LinearLayout>
 

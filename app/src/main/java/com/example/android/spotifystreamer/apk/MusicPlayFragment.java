@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -43,10 +44,12 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     private Handler durationHandler = new Handler();
 
     private String artist;
-    private LinearLayout ll;
+    static LinearLayout ll;
 
     private MusicData music;
+    private ArrayList<MusicData> musicData;
     private MusicData onSaveMusic;
+    private int musicIndex;
     private Runnable updateSeekBarTime = new Runnable() {
 
         public void run() {
@@ -70,12 +73,13 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         setHasOptionsMenu(true);
     }
 
-    public static MusicPlayFragment newInstance(MusicData music, String artist) {
+    public static MusicPlayFragment newInstance(ArrayList<MusicData> music, String artist,int position) {
         MusicPlayFragment myFragment = new MusicPlayFragment();
 
         Bundle args = new Bundle();
-        args.putParcelable("music", music);
-        args.putString("artist",artist);
+        args.putParcelableArrayList("music", music);
+        args.putString("artist", artist);
+        args.putInt("position",position);
         myFragment.setArguments(args);
         return myFragment;
     }
@@ -84,18 +88,22 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         ll = (LinearLayout) inflater.inflate(R.layout.fragment_music_play, container, false);
+        musicData=new ArrayList<>();
         if (savedInstanceState != null) {
-            onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
-            music = onSaveMusic;
+            //onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
+
+            //music = onSaveMusic;
         } else {
-            if (new MainActivity().getMTwoPane()) {
-                music = getArguments().getParcelable("music");
+            if (MainActivity.getMTwoPane()) {
+                musicData = getArguments().getParcelableArrayList("music");
+                musicIndex=getArguments().getInt("position");
                 artist = getArguments().getString("artist");
             } else {
                 Intent intent = getActivity().getIntent();
                 if (intent != null && intent.hasExtra("Object")) {
-                    music = (MusicData) intent.getExtras().getParcelable("Object");
+                    musicData =  intent.getExtras().getParcelableArrayList("Object");
                     artist = intent.getStringExtra(Intent.EXTRA_TEXT);
+                    musicIndex=intent.getIntExtra("position",0);
                 }
             }
         }
@@ -132,8 +140,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
                     .addToBackStack(null).commit();
         }
     }
-    class ViewHolder {
-        public ImageButton playPause, forward, backward;
+    static class ViewHolder {
+        static public ImageButton playPause, forward, backward,previous,next;
         public TextView songName, runTime, duration, artistName, ablume;
         private ImageView image;
         private SeekBar seekbar;
@@ -149,12 +157,15 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             playPause = (ImageButton) ll.findViewById(R.id.media_play);
             forward = (ImageButton) ll.findViewById(R.id.media_ff);
             backward = (ImageButton) ll.findViewById(R.id.media_bb);
+            previous = (ImageButton) ll.findViewById(R.id.previous);
+            next = (ImageButton) ll.findViewById(R.id.next);
         }
 
 
     }
 
     public void initializeViews() {
+        music=musicData.get(musicIndex);
         String url = music.id.previewUrl;
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -167,9 +178,6 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         }
         //mediaPlayer.start();
         ViewHolder viewHolder=new ViewHolder();
-
-
-
 
         viewHolder.songName.setText(music.id.trackName);
         viewHolder.artistName.setText(artist);
@@ -185,8 +193,6 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         viewHolder.ablume.setText(music.id.albumName);
 
         finalTime = mediaPlayer.getDuration();
-
-
         viewHolder.duration.setText(String.format("%d:%d ", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                 TimeUnit.MILLISECONDS.toSeconds((long) finalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
 
@@ -208,6 +214,20 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
                 backward(v);
             }
         });
+        viewHolder. previous.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                privious(v);
+            }
+        });
+        viewHolder. next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                next(v);
+            }
+        });
 
         viewHolder. playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -226,6 +246,21 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         });
 
 
+    }
+    public void privious(View view){
+        if (musicIndex>0){musicIndex--;}
+        mediaPlayer.stop();
+        //mediaPlayer.release();
+        ViewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+        initializeViews();
+    }
+
+    public void next(View view){
+        if (musicIndex<9){musicIndex++;}
+        mediaPlayer.stop();
+        ViewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+        //mediaPlayer.release();
+        initializeViews();
     }
     //handler to change seekBarTime
 

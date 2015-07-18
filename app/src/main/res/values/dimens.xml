@@ -2,4 +2,12 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
+
+
+    <dimen name="flexible_space_image_height">240dp</dimen>
+    <dimen name="flexible_space_image_height_mTwoPane">400dp</dimen>
+    <dimen name="intersection_height">16dp</dimen>
+    <dimen name="header_bar_height">35dp</dimen>
+    <dimen name="margin_standard">16dp</dimen>
+    <dimen name="flexible_space_show_fab_offset">120dp</dimen>
 </resources>
