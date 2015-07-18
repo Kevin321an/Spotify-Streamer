@@ -26,10 +26,10 @@ public class MusicData implements Parcelable {
     //    Here would be a Null Pointer Exception err if do not initialize the id
     public TrackData id = new TrackData();
 
-    public MusicData(String artist, String image, String id) {
+    public MusicData(String artist, String image, String image1000,String id) {
         this.artist = artist;
         this.image = image;
-
+        this.image1000=image1000;
         this.id.id = id;
     }
 
@@ -37,6 +37,7 @@ public class MusicData implements Parcelable {
         id=(TrackData) input.readParcelable((TrackData.class.getClassLoader()));
         artist = input.readString();
         image = input.readString();
+        image1000=input.readString();
 
     }
 
@@ -59,6 +60,7 @@ public class MusicData implements Parcelable {
         out.writeParcelable(id, flags);
         out.writeString(artist);
         out.writeString(image);
+        out.writeString(image1000);
     }
 
     @Override

@@ -328,7 +328,8 @@ public class MainActivityFragment extends Fragment {
                 final String OWM_NAME = "name";
                 final String OWM_URL = "url";
                 final int SMALL_IMG_SEQUENCE = 2;
-                String imagesUrlS;
+                final int Big_IMG_SEQUENCE = 0;
+                String images64UrlS,images640UrlS;
                 // Get the JSON object representing the day
                 JSONObject artistObject = musicArray.getJSONObject(i);
                 String id = artistObject.getString(SPOTIFY_ID);
@@ -336,13 +337,18 @@ public class MainActivityFragment extends Fragment {
                 JSONArray images = artistObject.getJSONArray(SPOTIFY_IMAGE);
 
                 if (images.length() > 0) {
-                    imagesUrlS = images.getJSONObject(SMALL_IMG_SEQUENCE).getString(OWM_URL);
+                    images64UrlS = images.getJSONObject(SMALL_IMG_SEQUENCE).getString(OWM_URL);
                 } else {
-                    imagesUrlS = "";
+                    images64UrlS = "";
+                }
+                if (images.length() > 0) {
+                    images640UrlS = images.getJSONObject(Big_IMG_SEQUENCE).getString(OWM_URL);
+                } else {
+                    images640UrlS = "";
                 }
 
                 String artistName = artistObject.getString(OWM_NAME);
-                music.add(new MusicData(artistName, imagesUrlS, id));
+                music.add(new MusicData(artistName, images64UrlS,images640UrlS, id));
 
             }
 

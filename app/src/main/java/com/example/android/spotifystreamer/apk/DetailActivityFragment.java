@@ -1,6 +1,5 @@
 package com.example.android.spotifystreamer.apk;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -11,7 +10,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,7 +36,7 @@ public class DetailActivityFragment extends Fragment {
     private MusicData music;
     private String musicID;
     private MainAdapter mDetailAdapter;
-    private String artist;
+    private String artist,imageLarge;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,21 +46,29 @@ public class DetailActivityFragment extends Fragment {
             music=arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
 
         }
-
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
-        //Bundle data = getActivity().getIntent().getExtras();
+
         if (intent != null && intent.hasExtra("Object")) {
-            //music = intent.getStringExtra(Intent.EXTRA_TEXT);
-            //music = (MusicData) intent.getParcelableArrayListExtra("Object");
+
             music = (MusicData)intent.getExtras().getParcelable("Object");
-            //((TextView) rootView.findViewById(R.id.detail_text))
-            // .setText(mForecastStr);
+
         }
         if (music!=null){
             musicID = music.id.id;
             artist=music.artist;
+            imageLarge=music.image1000;
+            //fetch the artist pic in detail activity
+            if(!MainActivity.getMTwoPane()){
+                if (imageLarge != null) {
+                    try {
+                        Picasso.with(getActivity().getBaseContext()).load(imageLarge).into((ImageView) rootView.findViewById(R.id.imageLarge));
 
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             FetchTrackTask trackTask = new FetchTrackTask();
             trackTask.execute(music.id.id);

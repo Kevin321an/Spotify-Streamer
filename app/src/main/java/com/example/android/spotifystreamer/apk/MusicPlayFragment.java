@@ -9,7 +9,12 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -62,6 +67,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     };
 
     public MusicPlayFragment() {
+        setHasOptionsMenu(true);
     }
 
     public static MusicPlayFragment newInstance(MusicData music, String artist) {
@@ -303,6 +309,42 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         super.onSaveInstanceState(outState);
 
         System.out.print("onSaveInstance on fragment");
+    }
+
+    //This part added for share botton
+    private ShareActionProvider mShareActionProvider; //use to share the information as the way of message, facebook .etc..
+    private static final String SPOTIFY_HASHTAG = " #Spotify Streamer";
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        inflater.inflate(R.menu.detailfragment, menu);
+
+        // Retrieve the share menu item
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        // Get the provider and hold onto it to set/change the share intent.
+        //ShareActionProvider mShareActionProvider =
+
+        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        // Attach an intent to this ShareActionProvider.  You can update this at any time,
+        // like when the user selects a new piece of data they might like to share.
+
+        // If onLoadFinished happens before this, it can go ahead and set the share intent now.
+        if (artist != null||music.id.trackName!=null) {
+            mShareActionProvider.setShareIntent(createShareForecastIntent());
+        }
+    }
+
+    //what's going to be sharing.
+    private Intent createShareForecastIntent() {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        //without this FLAG the, after sharing the info in other app, you will not return you app
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        //sharing plain text
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, music.artist+music.id.trackName + SPOTIFY_HASHTAG);
+        return shareIntent;
     }
 
 }

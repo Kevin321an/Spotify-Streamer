@@ -8,7 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class DetailActivity extends ActionBarActivity {
+public class DetailActivity <S extends Scrollable>extends ActionBarActivity implements ObservableScrollViewCallbacks{
 
     private MusicData music;
     @Override
