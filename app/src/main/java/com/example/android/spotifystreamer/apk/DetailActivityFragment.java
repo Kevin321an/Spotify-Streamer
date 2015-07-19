@@ -165,6 +165,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
             });
 
         }
+
         return detailRootView;
     }
 
@@ -312,7 +313,9 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 final String ARTIST_BASE_URL = "https://api.spotify.com/v1/artists/";
                 final String QUERY_PARAM = "q";
                 final String TYPE_PARAM = "top-tracks";
-                final String COUNTRY_PARAM = "?country=SE";
+                final String COUNTRY_PARAM = "?country="+MainActivity.getMLocation();
+
+
                 //URL url= new URL("https://api.spotify.com/v1/search?q=tania*&type=artist");
 //                 "https://api.spotify.com/v1/artists/43ZHCT0cAZBISjO8DG9PnE/top-tracks?country=SE" -H
                 Uri builtUri = Uri.parse(ARTIST_BASE_URL).buildUpon()
@@ -378,6 +381,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
             String albumImage640;
             String albumImage300;
             String previewUrl;
+            String external_urls;
             int NUMBER_OF_DISPLAY_TRACK = 10;
 
             //Log.v(LOG_TAG, "artisList JSON String"+musicJsonStr);
@@ -402,17 +406,23 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 final String OWM_URL = "url";
                 final String OWM_NAME = "name";
                 final String OWM_PREVIEWURL = "preview_url";
+                final String OWM_EXTERNAL_URLS = "external_urls";
+                final String OWM_SPOTIFY="spotify";
 
                 final int ALBUMIMAGE640PX_SEQUENCE = 0;
                 final int ALBUMIMAGE300PX_SEQUENCE = 1;
 
-                // Get the JSON object representing the day
+                // Get the JSON object representing the this track
                 JSONObject artistObject = musicArray.getJSONObject(i);
                 trackName = artistObject.getString(OWM_NAME);
                 previewUrl = artistObject.getString(OWM_PREVIEWURL);
 
                 JSONObject album = artistObject.getJSONObject(OWM_ALBUM);
                 albumName = album.getString(OWM_NAME);
+
+                JSONObject externalURL=artistObject.getJSONObject(OWM_EXTERNAL_URLS);
+                external_urls=externalURL.getString(OWM_SPOTIFY);
+
 
 
                 //JSONObject images= artistObject.getJSONArray(SPOTIFY_IMAGE).getJSONObject(SMALL_IMG_SEQUENCE);
@@ -437,7 +447,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                     albumImage300 = "";
                 }
                 // music.add(new MusicData(artistName, imagesUrlS, id));
-                music.add(new MusicData(musicID, trackName, albumName, albumImage640, albumImage300, previewUrl));
+                music.add(new MusicData(musicID, trackName, albumName, albumImage640, albumImage300, previewUrl,external_urls));
 
             }
             //output the  the formated data
@@ -458,4 +468,5 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
 
         }
     }
+
 }

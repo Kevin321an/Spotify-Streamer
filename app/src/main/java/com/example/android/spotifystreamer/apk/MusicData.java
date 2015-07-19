@@ -41,13 +41,14 @@ public class MusicData implements Parcelable {
 
     }
 
-    public MusicData(String id, String trackName, String albumName, String albumImage600, String albumImage300, String previewURL) {
+    public MusicData(String id, String trackName, String albumName, String albumImage600, String albumImage300, String previewURL, String external_urls) {
         this.id.id = id;
         this.id.trackName = trackName;
         this.id.albumName = albumName;
         this.id.albumImage600 = albumImage600;
         this.id.albumImage300 = albumImage300;
         this.id.previewUrl = previewURL;
+        this.id.external_urls=external_urls;
     }
 
     @Override
@@ -70,7 +71,8 @@ public class MusicData implements Parcelable {
                 + this.id.albumName + "\n"
                 + this.id.albumImage300 + "\n"
                 + this.id.albumImage600 + "\n"
-                + this.id.previewUrl;
+                + this.id.previewUrl + "\n"
+                +this.id.external_urls;
 
     }
     public static class TrackData implements Parcelable {
@@ -80,6 +82,7 @@ public class MusicData implements Parcelable {
         String albumImage600;
         String albumImage300;
         String previewUrl;
+        String external_urls;
         public TrackData(){
 
         }
@@ -91,6 +94,7 @@ public class MusicData implements Parcelable {
             albumImage600 = input.readString();
             albumImage300 = input.readString();
             previewUrl = input.readString();
+            external_urls=input.readString();
         }
 
         @Override
@@ -106,6 +110,7 @@ public class MusicData implements Parcelable {
             out.writeString(albumImage600);
             out.writeString(albumImage300);
             out.writeString(previewUrl);
+            out.writeString(external_urls);
         }
         public  static final Parcelable.Creator<TrackData> CREATOR =
             new Parcelable.Creator<TrackData>() {

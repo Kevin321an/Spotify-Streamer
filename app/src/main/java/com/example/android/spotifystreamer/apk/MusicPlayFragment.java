@@ -42,7 +42,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     private Handler durationHandler = new Handler();
 
     private String artist;
-    static LinearLayout ll;
+    private String external_urls;
+    private LinearLayout ll;
 
     private MusicData music;
     private ArrayList<MusicData> musicData;
@@ -379,7 +380,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         //sharing plain text
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, artist+music.id.trackName + SPOTIFY_HASHTAG);
+        external_urls=music.id.external_urls;
+        shareIntent.putExtra(Intent.EXTRA_TEXT, artist+music.id.trackName + "-"+external_urls+SPOTIFY_HASHTAG);
         return shareIntent;
     }
 
