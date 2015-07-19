@@ -25,15 +25,11 @@ public class DetailActivity extends AppCompatActivity {
                     .add(R.id.top10Track_detail_container, fragment)
                     .commit();
         }
-
-
-
         /*
         //set title which will be called from fragment
         ActionBar actionBar = getSupportActionBar();
         Intent intent=getIntent();
         //Bundle data = getIntent().getExtras();
-
         if (intent != null && intent.hasExtra("Object")) {
             music = (MusicData) intent.getExtras().getParcelable("Object");
         }

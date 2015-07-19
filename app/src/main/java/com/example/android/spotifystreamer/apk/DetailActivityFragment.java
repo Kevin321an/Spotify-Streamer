@@ -101,7 +101,6 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                     Picasso.with(getActivity().getBaseContext()).load(R.drawable.example).into((ImageView) detailRootView.findViewById(R.id.image));
                 }
 
-
             //this part for fillGap view
             int image_height=MainActivity.getMTwoPane()?R.dimen.flexible_space_image_height_mTwoPane:R.dimen.flexible_space_image_height;
             mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(image_height);
@@ -126,8 +125,6 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 }
             });
 
-            //*************************
-
             FetchTrackTask trackTask = new FetchTrackTask();
             trackTask.execute(music.id.id);
             mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
@@ -146,16 +143,10 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                     //MusicData music = mDetailAdapter.getItem(position);
-                    final  int NUMBER_OF_TRACK=10;
                     ArrayList<MusicData>music=new ArrayList<MusicData>();
-                    for (int i=0;i<NUMBER_OF_TRACK;i++){
+                    for (int i=0;i<mDetailAdapter.getCount();i++){
                         music.add(mDetailAdapter.getItem(i));
                     }
-
-                    /* Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
-                            .putExtra("Object", music)
-                            .putExtra(Intent.EXTRA_TEXT, artist);
-                    startActivity(mediaPlayer);*/
                     if (MainActivity.getMTwoPane()){
                         MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist,position);
                         dialog.show(getActivity().getFragmentManager(),DETAIL_URI);
@@ -167,37 +158,13 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                                 .putExtra("position",position);
 
                         startActivity(mediaPlayer);
-
-
-                                /*MusicPlayFragment fragment = MusicPlayFragment.newInstance(music);
-                        getFragmentManager().beginTransaction()
-                                .add(R.id.fragment_music_play,fragment)
-                                .commit();
-
-                        // The device is smaller, so show the fragment fullscreen
-                        FragmentManager fm = getActivity().getFragmentManager();
-                        FragmentTransaction transaction = fm.beginTransaction();
-                        // For a little polish, specify a transition animation
-                        transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                        // To make it fullscreen, use the 'content' root view as the container
-                        // for the fragment, which is always the root view for the activity
-                        transaction.add(android.R.id.content, dialog)
-                                .addToBackStack(null).commit();*/
-
-
                     }
-
                     //Reference
                     //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
                 }
             });
 
         }
-
-
-
-
-
         return detailRootView;
     }
 

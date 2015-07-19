@@ -14,28 +14,10 @@ public class MusicPlay extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_music_play);
-/*
-        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
-
-        //MusicPlayFragment fragment=new MusicPlayFragment();
-
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.activity_media_play, fragment)
-                .commit();
-
-
-        FragmentManager fm = getFragmentManager();
-        MusicPlayFragment dialogFragment = new MusicPlayFragment ();
-        //dialogFragment.show(fm, "Sample Fragment");
-        dialogFragment.showDialog();
-        */
-
-
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
         return true;
     }
 

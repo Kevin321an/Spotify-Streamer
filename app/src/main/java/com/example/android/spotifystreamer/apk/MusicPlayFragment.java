@@ -2,8 +2,6 @@ package com.example.android.spotifystreamer.apk;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -90,9 +88,9 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         ll = (LinearLayout) inflater.inflate(R.layout.fragment_music_play, container, false);
         musicData=new ArrayList<>();
         if (savedInstanceState != null) {
-            //onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
+            onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
 
-            //music = onSaveMusic;
+            music = onSaveMusic;
         } else {
             if (MainActivity.getMTwoPane()) {
                 musicData = getArguments().getParcelableArrayList("music");
@@ -111,6 +109,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         return ll;
     }
 
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // The only reason you might override this method when using onCreateView() is
@@ -122,6 +121,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         return dialog;
     }
 
+    /*
     public void showDialog() {
         FragmentManager fragmentManager = getFragmentManager();
         MusicPlayFragment newFragment = new MusicPlayFragment();
@@ -140,12 +140,12 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
                     .addToBackStack(null).commit();
         }
     }
-    static class ViewHolder {
-        static public ImageButton playPause, forward, backward,previous,next;
-        public TextView songName, runTime, duration, artistName, ablume;
-        private ImageView image;
-        private SeekBar seekbar;
-
+    */
+    class ViewHolder {
+        public ImageButton playPause, forward, backward,previous,next;
+         public TextView songName, runTime, duration, artistName, ablume;
+         private ImageView image;
+         private SeekBar seekbar;
         public ViewHolder(){
             songName = (TextView) ll.findViewById(R.id.songName);
             artistName = (TextView) ll.findViewById(R.id.artistName);
@@ -160,11 +160,9 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             previous = (ImageButton) ll.findViewById(R.id.previous);
             next = (ImageButton) ll.findViewById(R.id.next);
         }
-
-
     }
 
-    public void initializeViews() {
+    public void dataLoading(){
         music=musicData.get(musicIndex);
         String url = music.id.previewUrl;
         mediaPlayer = new MediaPlayer();
@@ -176,9 +174,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //mediaPlayer.start();
         ViewHolder viewHolder=new ViewHolder();
-
         viewHolder.songName.setText(music.id.trackName);
         viewHolder.artistName.setText(artist);
         if (music.id.albumImage600 != null) {
@@ -200,9 +196,13 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         viewHolder.songName.setText(music.id.trackName);
         viewHolder.seekbar.setMax((int) finalTime);
         viewHolder.seekbar.setClickable(false);
+    }
 
+    public void initializeViews() {
+        dataLoading();
+        ViewHolder viewHolder=new ViewHolder();
 
-        viewHolder.forward.setOnClickListener(new View.OnClickListener() {
+        /*viewHolder.forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 forward(v);
@@ -213,12 +213,13 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             public void onClick(View v) {
                 backward(v);
             }
-        });
+        });*/
+
         viewHolder. previous.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                privious(v);
+                previous(v);
             }
         });
         viewHolder. next.setOnClickListener(new View.OnClickListener() {
@@ -231,7 +232,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
 
         viewHolder. playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                ViewHolder viewHolder=new ViewHolder();
+                ViewHolder viewHolder = new ViewHolder();
                 if (isPlaying) {
                     mediaPlayer.pause();
                     //playPause.setImageResource(getResources().getDrawable(android.R.drawable.presence_busy));
@@ -245,25 +246,24 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             }
         });
 
-
     }
-    public void privious(View view){
+    public void previous(View view){
         if (musicIndex>0){musicIndex--;}
-        mediaPlayer.stop();
-        //mediaPlayer.release();
-        ViewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-        initializeViews();
+        mediaPlayer.reset();
+       // load the new source
+        dataLoading();
+       // start
+        mediaPlayer.start();
     }
 
     public void next(View view){
-        if (musicIndex<9){musicIndex++;}
-        mediaPlayer.stop();
-        ViewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-        //mediaPlayer.release();
-        initializeViews();
+        if (musicIndex<musicData.size()){musicIndex++;}
+        mediaPlayer.reset();
+        dataLoading();
+        mediaPlayer.start();
     }
-    //handler to change seekBarTime
 
+    //handler to change seekBarTime
     public void play(View view) {
         ViewHolder viewHolder=new ViewHolder();
         mediaPlayer.start();
@@ -272,12 +272,12 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         durationHandler.postDelayed(updateSeekBarTime, 100);
     }
 
-    // pause mp3 song
+    // pause song
     public void pause(View view) {
         mediaPlayer.pause();
     }
+    /*
     // go forward at forwardTime seconds
-
     public void forward(View view) {
         //check if we can go forward at forwardTime seconds before song endes
         if ((timeElapsed + forwardTime) <= finalTime) {
@@ -295,6 +295,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             mediaPlayer.seekTo((int) timeElapsed);
         }
     }
+    */
 
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
@@ -378,7 +379,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         //sharing plain text
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, music.artist+music.id.trackName + SPOTIFY_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, artist+music.id.trackName + SPOTIFY_HASHTAG);
         return shareIntent;
     }
 
