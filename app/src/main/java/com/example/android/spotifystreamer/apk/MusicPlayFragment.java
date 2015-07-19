@@ -155,8 +155,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             runTime = (TextView) ll.findViewById(R.id.runTime);
             seekbar = (SeekBar) ll.findViewById(R.id.seekBar);
             playPause = (ImageButton) ll.findViewById(R.id.media_play);
-            forward = (ImageButton) ll.findViewById(R.id.media_ff);
-            backward = (ImageButton) ll.findViewById(R.id.media_bb);
+            //forward = (ImageButton) ll.findViewById(R.id.media_ff);
+            //backward = (ImageButton) ll.findViewById(R.id.media_bb);
             previous = (ImageButton) ll.findViewById(R.id.previous);
             next = (ImageButton) ll.findViewById(R.id.next);
         }
@@ -257,7 +257,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     }
 
     public void next(View view){
-        if (musicIndex<musicData.size()){musicIndex++;}
+        if (musicIndex<musicData.size()-1){musicIndex++;}
         mediaPlayer.reset();
         dataLoading();
         mediaPlayer.start();

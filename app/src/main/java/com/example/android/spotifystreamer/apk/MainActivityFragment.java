@@ -115,25 +115,9 @@ public class MainActivityFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        /*only for test
-        *  String[] data = {
-                "Mon 6/23?- Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thurs 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHERSTATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-        };
-        List<String> listArtist = new ArrayList<String>(Arrays.asList(data));
-        *
-        *
-        * */
+
 
         mArtistListAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_textview, mListInstanceState);
-        //mArtistListAdapter=new ArrayAdapter<String>
-        //      (getActivity(), R.layout.list_item_artist_textview,
-        //             R.id.list_item_artist_textview, listArtist);
 
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
@@ -225,11 +209,7 @@ public class MainActivityFragment extends Fragment {
 
 
         protected ArrayList<MusicData> doInBackground(String... params) {
-            /*
-            if(params.length==0){
-                return null;
-            }
-            */
+
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -317,13 +297,6 @@ public class MainActivityFragment extends Fragment {
             }
 
             music = new ArrayList<MusicData>();
-
-            //String[] resultStrs = new String[numberOfAritist];
-            //artistName= new String[numberOfAritist];
-            //id=new String[numberOfAritist];
-            //imagesUrlS=new String[numberOfAritist];
-
-
             for (int i = 0; i < numberOfAritist; i++) {
                 final String OWM_NAME = "name";
                 final String OWM_URL = "url";

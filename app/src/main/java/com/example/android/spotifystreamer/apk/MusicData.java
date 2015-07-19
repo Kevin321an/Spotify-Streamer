@@ -6,7 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by FM on 6/17/2015.
  */
-@SuppressWarnings("serial") //with this annotation are going to hide compiler warning
+
 public class MusicData implements Parcelable {
     public static final Parcelable.Creator<MusicData> CREATOR =
             new Parcelable.Creator<MusicData>() {

@@ -8,6 +8,8 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--Showing an activity as a dialog on large screens-->
+<!--allow to use our lock screen notification to control media-->
+    <permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
 
 
     <!-- implement the launchMode singleTop -->

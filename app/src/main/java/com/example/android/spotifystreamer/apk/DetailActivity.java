@@ -8,7 +8,6 @@ import android.view.MenuItem;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private MusicData music;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +32,6 @@ public class DetailActivity extends AppCompatActivity {
         if (intent != null && intent.hasExtra("Object")) {
             music = (MusicData) intent.getExtras().getParcelable("Object");
         }
-
         if(actionBar != null&&!MainActivity.getMTwoPane()) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(music.artist);

@@ -29,7 +29,6 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
-
             if (savedInstanceState == null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.top10Track_detail_container, new DetailActivityFragment(), DETAILFRAGMENT_TAG)

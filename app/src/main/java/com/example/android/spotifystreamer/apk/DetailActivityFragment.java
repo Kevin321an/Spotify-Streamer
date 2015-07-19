@@ -300,11 +300,6 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
         private final String LOG_TAG = FetchTrackTask.class.getSimpleName();
         protected ArrayList<MusicData> doInBackground(String... params) {
 
-            /*
-            if(params.length==0){
-                return null;
-            }
-            */
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;

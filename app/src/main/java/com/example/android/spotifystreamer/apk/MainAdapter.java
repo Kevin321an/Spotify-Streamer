@@ -66,17 +66,12 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
             layout = (LinearLayout) view;
             holder = (ViewHodler) view.getTag();
         }
-        //!!!!!!!!!!!!!!!!!THere was a bug as the rooView was not being inflate every time.
+        //!!THere was a bug as the rooView was not being inflate every time.
         if (mResource == R.layout.list_item_artist_textview) {
 
 
             //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
             holder.artist.setText(music.artist);
-
-            //songNameView.setText(songName[position]);
-            //songNameView.setText(music.artist);
-
-
             if (music.image != null) {
 
                 //iconView.setImageResource(R.drawable.ic_launcher);
@@ -94,14 +89,6 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
         else if (mResource == R.layout.list_item_artist_ablum) {
             holder.trackName.setText(music.id.trackName);
             holder.albumName.setText(music.id.albumName);
-
-
-            //TextView songNameView= (TextView) layout.findViewById(R.id.list_item_artist_textview);
-
-
-            //songNameView.setText(songName[position]);
-            //songNameView.setText(music.artist);
-
 
             if (music.id.albumImage300 != null) {
                 ImageView iconView = (ImageView) layout.findViewById(R.id.list_ablum_imageview);
