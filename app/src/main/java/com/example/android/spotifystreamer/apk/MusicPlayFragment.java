@@ -163,7 +163,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     }
 
     public void dataLoading(){
-        music=musicData.get(musicIndex);
+        music=musicData.get(musicIndex-1);
         String url = music.id.previewUrl;
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -248,7 +248,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
 
     }
     public void previous(View view){
-        if (musicIndex>0){musicIndex--;}
+        if (musicIndex>1){musicIndex--;}
         mediaPlayer.reset();
        // load the new source
         dataLoading();
