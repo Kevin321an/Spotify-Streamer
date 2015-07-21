@@ -75,6 +75,9 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             timeRemaining = finalTime - timeElapsed;
             viewHolder.runTime.setText(String.format("%d:%d ", TimeUnit.MILLISECONDS.toMinutes((long) timeRemaining),
                     TimeUnit.MILLISECONDS.toSeconds((long) timeRemaining) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) timeRemaining))));
+            if (timeElapsed==mediaPlayer.getDuration()){
+                next(viewHolder.next);
+            }
         }
     };
 
@@ -169,8 +172,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             runTime = (TextView) ll.findViewById(R.id.runTime);
             seekbar = (SeekBar) ll.findViewById(R.id.seekBar);
             playPause = (ImageButton) ll.findViewById(R.id.media_play);
-            //forward = (ImageButton) ll.findViewById(R.id.media_ff);
-            //backward = (ImageButton) ll.findViewById(R.id.media_bb);
+            forward = (ImageButton) ll.findViewById(R.id.media_ff);
+            backward = (ImageButton) ll.findViewById(R.id.media_bb);
             previous = (ImageButton) ll.findViewById(R.id.previous);
             next = (ImageButton) ll.findViewById(R.id.next);
         }
@@ -194,6 +197,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
                 e.printStackTrace();
             }
         }
+
         play(viewHolder.playPause);
 
         viewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
@@ -223,7 +227,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         dataLoading();
         ViewHolder viewHolder=new ViewHolder();
 
-        /*viewHolder.forward.setOnClickListener(new View.OnClickListener() {
+        viewHolder.forward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 forward(v);
@@ -234,7 +238,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             public void onClick(View v) {
                 backward(v);
             }
-        });*/
+        });
 
         viewHolder. previous.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,7 +301,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     public void pause(View view) {
         mediaPlayer.pause();
     }
-    /*
+
     // go forward at forwardTime seconds
     public void forward(View view) {
         //check if we can go forward at forwardTime seconds before song endes
@@ -316,7 +320,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             mediaPlayer.seekTo((int) timeElapsed);
         }
     }
-    */
+
 
     public void onAudioFocusChange(int focusChange) {
         switch (focusChange) {
