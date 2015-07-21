@@ -85,7 +85,6 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setSubtitle(trackList.artist);
 
-
             DetailActivityFragment fragment=new DetailActivityFragment();
             fragment.setArguments(args);
             getSupportFragmentManager().beginTransaction()

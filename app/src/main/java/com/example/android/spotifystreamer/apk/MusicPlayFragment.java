@@ -19,6 +19,7 @@ import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -32,10 +33,9 @@ import java.util.concurrent.TimeUnit;
  * A placeholder fragment containing a simple view.
  */
 public class MusicPlayFragment extends DialogFragment implements AudioManager.OnAudioFocusChangeListener {
-    private static final String SAVE_PAGE_KEY = "save_page";
 
-    boolean isPlaying = false;
-    private MediaPlayer mediaPlayer;
+    boolean isPlaying = true;
+    static private MediaPlayer mediaPlayer;
     private double timeElapsed = 0, finalTime = 0;
     private double timeRemaining;
     private int forwardTime = 2000, backwardTime = 2000;
@@ -44,11 +44,21 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
     private String artist;
     private String external_urls;
     private LinearLayout ll;
-
     private MusicData music;
     private ArrayList<MusicData> musicData;
-    private MusicData onSaveMusic;
+
     private int musicIndex;
+
+
+    //onSavestate
+    private static final String SAVE_PAGE_KEY = "save_page";
+    private ArrayList<MusicData> mListInstanceState;
+    private ArrayList<MusicData>  onSaveMusic;
+    private int mPosition = ListView.INVALID_POSITION;
+    private static final String SELECTED_KEY = "selected_position";
+    private static final String ARTIST_KEY = "artist";
+    private static final String MEDIAPLAYER_KEY = "mediaPlayer";
+
     private Runnable updateSeekBarTime = new Runnable() {
 
         public void run() {
@@ -77,8 +87,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
 
         Bundle args = new Bundle();
         args.putParcelableArrayList("music", music);
-        args.putString("artist", artist);
-        args.putInt("position",position);
+        args.putString(ARTIST_KEY, artist);
+        args.putInt("position", position);
         myFragment.setArguments(args);
         return myFragment;
     }
@@ -89,14 +99,17 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         ll = (LinearLayout) inflater.inflate(R.layout.fragment_music_play, container, false);
         musicData=new ArrayList<>();
         if (savedInstanceState != null) {
-            onSaveMusic = savedInstanceState.getParcelable(SAVE_PAGE_KEY);
-
-            music = onSaveMusic;
+            onSaveMusic = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
+            mPosition=savedInstanceState.getInt(SELECTED_KEY);
+            musicIndex=mPosition;
+            musicData = onSaveMusic;
+            artist=savedInstanceState.getString(ARTIST_KEY);
+            //mediaPlayer=savedInstanceState.getParcelable(MEDIAPLAYER_KEY);
         } else {
             if (MainActivity.getMTwoPane()) {
                 musicData = getArguments().getParcelableArrayList("music");
                 musicIndex=getArguments().getInt("position");
-                artist = getArguments().getString("artist");
+                artist = getArguments().getString(ARTIST_KEY);
             } else {
                 Intent intent = getActivity().getIntent();
                 if (intent != null && intent.hasExtra("Object")) {
@@ -163,19 +176,27 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         }
     }
 
+    private static String oldURL="";
     public void dataLoading(){
-        music=musicData.get(musicIndex-1);
-        String url = music.id.previewUrl;
-        mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(url);
-            mediaPlayer.prepare(); // might take long! (for buffering, etc)
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         ViewHolder viewHolder=new ViewHolder();
+        music=musicData.get(musicIndex-1);
+        mPosition=musicIndex;
+        String url = music.id.previewUrl;
+
+        if (!oldURL.equals(url)){
+            try {
+                if (mediaPlayer!=null){mediaPlayer.reset();}
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mediaPlayer.setDataSource(url);
+                mediaPlayer.prepare(); // might take long! (for buffering, etc)
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        play(viewHolder.playPause);
+
+        viewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
         viewHolder.songName.setText(music.id.trackName);
         viewHolder.artistName.setText(artist);
         if (music.id.albumImage600 != null) {
@@ -192,11 +213,10 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         finalTime = mediaPlayer.getDuration();
         viewHolder.duration.setText(String.format("%d:%d ", TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                 TimeUnit.MILLISECONDS.toSeconds((long) finalTime) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long) finalTime))));
-
-
         viewHolder.songName.setText(music.id.trackName);
         viewHolder.seekbar.setMax((int) finalTime);
         viewHolder.seekbar.setClickable(false);
+        oldURL=url;
     }
 
     public void initializeViews() {
@@ -234,14 +254,14 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         viewHolder. playPause.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 ViewHolder viewHolder = new ViewHolder();
-                if (isPlaying) {
-                    mediaPlayer.pause();
-                    //playPause.setImageResource(getResources().getDrawable(android.R.drawable.presence_busy));
-                    viewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
-                } else {
+                if (!isPlaying) {
                     play(viewHolder.playPause);
                     viewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
 
+                } else {
+                    mediaPlayer.pause();
+                    //playPause.setImageResource(getResources().getDrawable(android.R.drawable.presence_busy));
+                    viewHolder.playPause.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
                 }
                 isPlaying = !isPlaying;
             }
@@ -329,7 +349,8 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         }
     }
 
-    @Override
+
+    /*@Override
     public void onDestroy() {
         super.onDestroy();
         if (mediaPlayer != null) {
@@ -337,15 +358,19 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
             durationHandler.removeCallbacks(updateSeekBarTime);
             mediaPlayer = null;
         }
-    }
+    }*/
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         //outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
-        outState.putParcelable(SAVE_PAGE_KEY, onSaveMusic);
+        outState.putParcelableArrayList(SAVE_PAGE_KEY, musicData);
+
+        if (mPosition != ListView.INVALID_POSITION) {
+            outState.putInt(SELECTED_KEY, mPosition);
+        }
+        outState.putString(ARTIST_KEY,artist);
         super.onSaveInstanceState(outState);
 
-        System.out.print("onSaveInstance on fragment");
     }
 
     //This part added for share botton
@@ -358,15 +383,12 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
 
         // Retrieve the share menu item
         MenuItem menuItem = menu.findItem(R.id.action_share);
-
         // Get the provider and hold onto it to set/change the share intent.
-        //ShareActionProvider mShareActionProvider =
+
 
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
         // Attach an intent to this ShareActionProvider.  You can update this at any time,
         // like when the user selects a new piece of data they might like to share.
-
         // If onLoadFinished happens before this, it can go ahead and set the share intent now.
         if (artist != null||music.id.trackName!=null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());
@@ -381,8 +403,9 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         //sharing plain text
         shareIntent.setType("text/plain");
         external_urls=music.id.external_urls;
-        shareIntent.putExtra(Intent.EXTRA_TEXT, artist+music.id.trackName + "-"+external_urls+SPOTIFY_HASHTAG);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, artist + music.id.trackName + "-" + external_urls + SPOTIFY_HASHTAG);
         return shareIntent;
     }
+
 
 }

@@ -67,15 +67,24 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
     private boolean mReady;
     private View detailRootView;
     private ObservableListView listView;
-
+    private static String oldMusciId="";//store old MUSIC ID
+    private ArrayList<MusicData> mListInstanceState;
+    private static final String SAVE_PAGE_KEY = "save_page";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        if (savedInstanceState != null) {
+            mListInstanceState = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
+        } else {
+            mListInstanceState = new ArrayList<MusicData>();
+        }
+
+        //get intent from MainActivity
         Bundle arguments =getArguments();
         if(arguments!=null){
             music=arguments.getParcelable(DetailActivityFragment.DETAIL_URI);
-
         }
         detailRootView = inflater.inflate(R.layout.fragment_detail, container, false);
         Intent intent = getActivity().getIntent();
@@ -100,77 +109,78 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 }else {
                     Picasso.with(getActivity().getBaseContext()).load(R.drawable.example).into((ImageView) detailRootView.findViewById(R.id.image));
                 }
-
-            //this part for fillGap view
-            int image_height=MainActivity.getMTwoPane()?R.dimen.flexible_space_image_height_mTwoPane:R.dimen.flexible_space_image_height;
-            mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(image_height);
-            mActionBarSize = getActionBarSize();
-
-            // Even when the top gap has began to change, header bar still can move
-            // within mIntersectionHeight.
-            mIntersectionHeight = getResources().getDimensionPixelSize(R.dimen.intersection_height);
-            mImage = detailRootView.findViewById(R.id.image);
-            mHeader = detailRootView.findViewById(R.id.header);
-            mHeaderBar = detailRootView.findViewById(R.id.header_bar);
-            mHeaderBackground = detailRootView.findViewById(R.id.header_background);
-            mListBackgroundView = detailRootView.findViewById(R.id.list_background);
-            ((TextView) detailRootView.findViewById(R.id.title)).setText(artist);
-            //getActivity().setTitle(null);
-            final ObservableListView scrollable = createScrollable();
-            ScrollUtils.addOnGlobalLayoutListener((View) scrollable, new Runnable() {
-                @Override
-                public void run() {
-                    mReady = true;
-                    updateViews(scrollable.getCurrentScrollY(), false);
-                }
-            });
-
+            fillGapViewDisply();
             FetchTrackTask trackTask = new FetchTrackTask();
-            trackTask.execute(music.id.id);
-            mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, new ArrayList<MusicData>());
-            //mArtistListAdapter=new ArrayAdapter<String>
-            //      (getActivity(), R.layout.list_item_artist_textview,
-            //             R.id.list_item_artist_textview, listArtist);
-
-
+            //if oldID same with new id, it is no need to execute the HTTP checking
+            if(!oldMusciId.equals(music.id.id)){
+                trackTask.execute(music.id.id);
+            }
+            mDetailAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_ablum, mListInstanceState);
             listView = (ObservableListView) detailRootView.findViewById(R.id.listview_detail);
             listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
-
-
-            //listener for listview and sent intent to mediaPlayer
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                    //MusicData music = mDetailAdapter.getItem(position);
-                    ArrayList<MusicData>music=new ArrayList<MusicData>();
-                    for (int i=0;i<mDetailAdapter.getCount();i++){
-                        music.add(mDetailAdapter.getItem(i));
-                    }
-                    if (MainActivity.getMTwoPane()){
-                        MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist,position);
-                        dialog.show(getActivity().getFragmentManager(),DETAIL_URI);
-
-                    }else {
-                        Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
-                                .putExtra("Object", music)
-                                .putExtra(Intent.EXTRA_TEXT, artist)
-                                .putExtra("position",position);
-
-                        startActivity(mediaPlayer);
-                    }
-                    //Reference
-                    //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
-                }
-            });
-
+            listviewClickListener();
         }
-
+        oldMusciId=music.id.id;
         return detailRootView;
     }
+    //listener for listview and sent intent to mediaPlayer
+    private void listviewClickListener(){
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-    //**
-    // *this part for fill gap view
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                //MusicData music = mDetailAdapter.getItem(position);
+                ArrayList<MusicData>music=new ArrayList<MusicData>();
+                for (int i=0;i<mDetailAdapter.getCount();i++){
+                    music.add(mDetailAdapter.getItem(i));
+                }
+                if (MainActivity.getMTwoPane()){
+                    MusicPlayFragment dialog= MusicPlayFragment.newInstance(music, artist,position);
+                    dialog.show(getActivity().getFragmentManager(),DETAIL_URI);
+
+                }else {
+                    Intent mediaPlayer = new Intent(getActivity(), MusicPlay.class)
+                            .putExtra("Object", music)
+                            .putExtra(Intent.EXTRA_TEXT, artist)
+                            .putExtra("position",position);
+
+                    startActivity(mediaPlayer);
+                }
+                //Reference
+                //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
+            }
+        });
+    }
+
+    /**this part for fill gap view
+     *
+     */
+    private void fillGapViewDisply(){
+        //this part for fillGap view
+        int image_height=MainActivity.getMTwoPane()?R.dimen.flexible_space_image_height_mTwoPane:R.dimen.flexible_space_image_height;
+        mFlexibleSpaceImageHeight = getResources().getDimensionPixelSize(image_height);
+        mActionBarSize = getActionBarSize();
+
+        // Even when the top gap has began to change, header bar still can move
+        // within mIntersectionHeight.
+        mIntersectionHeight = getResources().getDimensionPixelSize(R.dimen.intersection_height);
+        mImage = detailRootView.findViewById(R.id.image);
+        mHeader = detailRootView.findViewById(R.id.header);
+        mHeaderBar = detailRootView.findViewById(R.id.header_bar);
+        mHeaderBackground = detailRootView.findViewById(R.id.header_background);
+        mListBackgroundView = detailRootView.findViewById(R.id.list_background);
+        ((TextView) detailRootView.findViewById(R.id.title)).setText(artist);
+        //getActivity().setTitle(null);
+        final ObservableListView scrollable = createScrollable();
+        ScrollUtils.addOnGlobalLayoutListener((View) scrollable, new Runnable() {
+            @Override
+            public void run() {
+                mReady = true;
+                updateViews(scrollable.getCurrentScrollY(), false);
+            }
+        });
+    }
+
     protected int getActionBarSize() {
         TypedValue typedValue = new TypedValue();
         int[] textSizeAttr = new int[]{R.attr.actionBarSize};
@@ -461,12 +471,17 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
             if (result != null) {
                 mDetailAdapter.clear();
                 mDetailAdapter.addAll(result);
-                //for (String Str : result) {
-                //   mArtistListAdapter.add(Str);
-                //}
             }
 
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        //outState.putParcelable(SAVE_PAGE_KEY, listView.onSaveInstanceState());
+        outState.putParcelableArrayList(SAVE_PAGE_KEY, mListInstanceState);
+        super.onSaveInstanceState(outState);
+
     }
 
 }

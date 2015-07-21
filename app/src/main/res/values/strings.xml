@@ -9,8 +9,6 @@
     <string name="title_activity_music_play">Spotify Streamer</string>
     <string name="action_share">Share</string>
 
-
-
     <!-- Label for the location preference [CHAR LIMIT=30] -->
     <string name="pref_location_label">Location</string>
 
@@ -19,6 +17,9 @@
 
     <!-- Default postal code for location preference [CHAR LIMIT=NONE] -->
     <string name="pref_location_default" translatable="false">SE</string>
+
+    <string name="no_result_feedback" translatable="false">Sorry, we do not have this artist</string>
+    <string name="no_internet_connection" translatable="false">The internet connection service is not available</string>
 
 <!-- TODO: Remove or change this placeholder text -->
 

@@ -1,5 +1,8 @@
 package com.example.android.spotifystreamer.apk;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,28 +46,12 @@ public class MainActivityFragment extends Fragment {
     EditText searchBar;
     private boolean dataIsNull = false;
     private ListView listView;//store the current list.
-
-    //for test
-    /*private void updateArtistList() {
-        FetchArtistTask artistTask = new FetchArtistTask();
-        artistTask.execute("tania");
-    }
-
-    * */
+    private static String str="";//store the searching keyword
     private ArrayList<MusicData> mListInstanceState;
     //SearchView searchBar;
-    //private ArrayAdapter<String> mArtistListAdapter;
+
     private MainAdapter mArtistListAdapter;
 
-    //String[] id;
-    //String[] imagesUrlS={"https://i.scdn.co/image/f444d668bfa1a057e1759c6266f8fbf471eb6c04", "https://i.scdn.co/image/48c420405d19d09381d5541d239a9b7ae9bd3ed8"};
-    /*
-    @Override
-    public void onStart(){
-        super.onStart();
-        updateArtistList();
-    }
-    */
     public interface Callback{
         public void onItemSelected(MusicData trackList);
     }
@@ -75,11 +62,6 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Add this line in order for this fragment to handle menu events
-        // if(savedInstanceState!=null) {
-        //Save the ListView state on onSaveInstanceState:
-        /*if(savedInstanceState!=null) {
-            mListInstanceState = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
-        }*/
 
         if (savedInstanceState != null) {
             mListInstanceState = savedInstanceState.getParcelableArrayList(SAVE_PAGE_KEY);
@@ -111,12 +93,11 @@ public class MainActivityFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
-
         mArtistListAdapter = new MainAdapter(getActivity(), R.layout.list_item_artist_textview, mListInstanceState);
 
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
@@ -149,11 +130,19 @@ public class MainActivityFragment extends Fragment {
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().isEmpty()) {
+                boolean compareS=str.equals(s.toString().trim());
+
+                if (!s.toString().isEmpty()&&!compareS) {
                     performSearch(s.toString());
                 }
-                final String NO_RESULT = "Sorry, we do not have this artist";
+                str=s.toString().trim();
+                if(!isNetworkConnected()){
+                    final String NO_INTERNET = getString(R.string.no_internet_connection);
+                    Toast.makeText(getActivity(), NO_INTERNET, Toast.LENGTH_LONG).show();
+                }
+
                 if (dataIsNull && s.length() > 3) {
+                    final String NO_RESULT = getString(R.string.no_result_feedback);
                     Toast.makeText(getActivity(), NO_RESULT, Toast.LENGTH_SHORT).show();
                     dataIsNull = false;
                 }
@@ -169,7 +158,6 @@ public class MainActivityFragment extends Fragment {
 
             private void performSearch(String search) {
                 FetchArtistTask artistTask = new FetchArtistTask();
-                System.out.println("research");
                 artistTask.execute(search);
             }
         });
@@ -185,8 +173,8 @@ public class MainActivityFragment extends Fragment {
                 /*Intent showDetail = new Intent(getActivity(), DetailActivity.class)
                         .putExtra("Object", music);
                 startActivity(showDetail);*/
-                ((Callback) getActivity()).onItemSelected(music);
 
+                ((Callback) getActivity()).onItemSelected(music);
                 //Reference
                 //http://developer.android.com/guide/components/intents-filters.html#ExampleExplicit
             }
@@ -272,11 +260,7 @@ public class MainActivityFragment extends Fragment {
                 e.printStackTrace();
             }
             return null;
-
-
         }
-
-
         private ArrayList<MusicData> getArtistDataFromJson(String musicJsonStr)
                 throws JSONException {
             ArrayList<MusicData> music;
@@ -327,25 +311,49 @@ public class MainActivityFragment extends Fragment {
 
             //output the  the formated data
             for (MusicData s : music) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
+                Log.v(LOG_TAG, "Main entry" + s);
             }
             return music;
-
         }
+
+
 
         protected void onPostExecute(ArrayList<MusicData> result) {
             if (result != null) {
+
                 mArtistListAdapter.clear();
                 mArtistListAdapter.addAll(result);
                 //for (String Str : result) {
                 //   mArtistListAdapter.add(Str);
                 //}
             }
-
         }
     }
+    //check the internet connection
+    /*private boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("google.com");
 
+            if (ipAddr.equals("")) {
+                return false;
+            } else {return true;}
+        } catch (Exception e) {
+            return false;
+        }
 
+    }
+    *
+    * */
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getActiveNetworkInfo();
+        if (ni == null) {
+            // There are no active networks.
+            return false;
+        } else
+            return true;
+    }
 }
 
 
