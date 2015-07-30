@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -102,6 +103,8 @@ public class MainActivityFragment extends Fragment {
 
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
+        View emptyView = rootView.findViewById(R.id.listview_music_empty);
+        listView.setEmptyView(emptyView);
         //if(mListInstanceState!=null){
         //.onRestoreInstanceState(mListInstanceState);
         //setListAdapter(new ArrayAdapter<MusicData>(this, android.R.layout.listview_artist, list));
@@ -136,10 +139,7 @@ public class MainActivityFragment extends Fragment {
                     performSearch(s.toString());
                 }
                 str=s.toString().trim();
-                if(!isNetworkConnected()){
-                    final String NO_INTERNET = getString(R.string.no_internet_connection);
-                    Toast.makeText(getActivity(), NO_INTERNET, Toast.LENGTH_LONG).show();
-                }
+
 
                 if (dataIsNull && s.length() > 3) {
                     final String NO_RESULT = getString(R.string.no_result_feedback);
@@ -159,10 +159,9 @@ public class MainActivityFragment extends Fragment {
             private void performSearch(String search) {
                 FetchArtistTask artistTask = new FetchArtistTask();
                 artistTask.execute(search);
+                updateEmptyView();
             }
         });
-
-
         //listener for listview
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -323,10 +322,8 @@ public class MainActivityFragment extends Fragment {
 
                 mArtistListAdapter.clear();
                 mArtistListAdapter.addAll(result);
-                //for (String Str : result) {
-                //   mArtistListAdapter.add(Str);
-                //}
             }
+
         }
     }
     //check the internet connection
@@ -345,14 +342,37 @@ public class MainActivityFragment extends Fragment {
     *
     * */
 
-    private boolean isNetworkConnected() {
-        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        if (ni == null) {
-            // There are no active networks.
-            return false;
-        } else
-            return true;
+
+    /**
+     * Returns true if the network is available or about to become available.
+     *
+     * @param c Context used to get the ConnectivityManager
+     * @return
+     */
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm =
+                (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+    }
+    /*
+      Updates the empty list view with contextually relevant information that the user can
+        use to determine why they aren't seeing weather.
+    */
+    private void updateEmptyView() {
+        if ( mArtistListAdapter.getCount() == 0 ) {
+            TextView tv = (TextView) getView().findViewById(R.id.listview_music_empty);
+            if ( null != tv ) {
+                // if cursor is empty, why? do we have an invalid location
+                int message = R.string.empty_music_list;
+                if (!isNetworkAvailable(getActivity()) ) {
+                    message = R.string.empty_music_list_no_network;
+                }
+                tv.setText(message);
+            }
+        }
     }
 }
 

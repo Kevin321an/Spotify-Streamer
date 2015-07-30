@@ -21,6 +21,10 @@
     <string name="no_result_feedback" translatable="false">Sorry, we do not have this artist</string>
     <string name="no_internet_connection" translatable="false">The internet connection service is not available</string>
 
+    <!-- Empty Weather Database -->
+    <string name="empty_music_list">No Artist Information Available</string>
+    <string name="empty_music_list_no_network">No Artist information available. The network is not available to fetch music data.</string>
+
 <!-- TODO: Remove or change this placeholder text -->
 
 
