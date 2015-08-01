@@ -50,7 +50,10 @@ public class MainActivity extends ActionBarActivity implements MainActivityFragm
         //get the location
         mLocation = getCountryCode(getPreferredLocation(this));
 
+
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
