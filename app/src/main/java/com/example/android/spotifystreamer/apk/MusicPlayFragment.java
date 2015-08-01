@@ -392,7 +392,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
 
         mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
         // Attach an intent to this ShareActionProvider.  You can update this at any time,
-        // like when the user selects a new piece of data they might like to share.
+        // like when the user selects a new piece of com.example.android.spotifystreamer.apk.data they might like to share.
         // If onLoadFinished happens before this, it can go ahead and set the share intent now.
         if (artist != null||music.id.trackName!=null) {
             mShareActionProvider.setShareIntent(createShareForecastIntent());

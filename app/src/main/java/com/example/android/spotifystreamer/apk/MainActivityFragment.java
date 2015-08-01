@@ -7,8 +7,6 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -23,15 +21,15 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import com.example.android.spotifystreamer.apk.service.Json;
 
-import service.Json;
+import java.util.ArrayList;
 
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class MainActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<MusicData> {
+public class MainActivityFragment extends Fragment {
     private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private static final String SAVE_PAGE_KEY = "save_page";
     EditText searchBar;
@@ -41,6 +39,8 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
     private ArrayList<MusicData> mListInstanceState;
     //SearchView searchBar;
     private MainAdapter mArtistListAdapter;
+    private boolean serviceCallback= false;
+    private ArrayList<MusicData> result;
 
 
     public interface Callback{
@@ -95,15 +95,9 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         listView = (ListView) rootView.findViewById(R.id.listview_artist);
         listView.setAdapter(mArtistListAdapter); //shoot the ArrayAdapter on to Screen
 
-        //for  non network or data view
+        //for  non network or com.example.android.spotifystreamer.apk.data view
         View emptyView = rootView.findViewById(R.id.listview_music_empty);
         listView.setEmptyView(emptyView);
-
-
-        //if(mListInstanceState!=null){
-        //.onRestoreInstanceState(mListInstanceState);
-        //setListAdapter(new ArrayAdapter<MusicData>(this, android.R.layout.listview_artist, list));
-        //}
         //Listener for searchBar
         /*
         searchBar=(SearchView)rootView.findViewById(R.id.artists_search_bar);
@@ -150,19 +144,21 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
             @Override
             public void afterTextChanged(Editable s) {
+                /*ArrayList<MusicData> result=Json.getArtistArray().getParcelableArrayList(Json.ARTIST_LIST);
+                if (result!=null){
+                    mArtistListAdapter.clear();
+                    mArtistListAdapter.addAll(result);
+                }*/
+
+
             }
 
-            private void performSearch(String search) {
-
-
-
-                //fetch data by using Pending Intent
+            private void performSearch(String search){
+                //fetch com.example.android.spotifystreamer.apk.data by using Pending Intent
                 Intent intent = new Intent(getActivity(), Json.class);
                 intent.putExtra(Json.ARTIST,search);
                 getActivity().startService(intent);
-
-                /*
-                 //fetch data by using Pending Intent
+                /* //fetch com.example.android.spotifystreamer.apk.data by using Pending Intent
                 Intent alarmIntent = new Intent(getActivity(), Json.AlarmReceiver.class);
                 alarmIntent.putExtra(Json.ARTIST, search);
                 //Wrap in a pending intent which only fires once.
@@ -172,18 +168,25 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
                 //intent	The Intent to be broadcast.
                 //flags
                 PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0,alarmIntent,PendingIntent.FLAG_ONE_SHOT);//getBroadcast(context, 0, i, 0);
-
                 AlarmManager am=(AlarmManager)getActivity().getSystemService(Context.ALARM_SERVICE);
-
                 //Set the AlarmManager to wake up the system.
-                am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);
-                */
-                //FetchArtistTask artistTask = new FetchArtistTask();
+                am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pi);*/
+
+                /*while (serviceCallback==Json.isCallBack()){
+                   System.out.println("callback");
+                }
+                serviceCallback=Json.isCallBack();*/
+                result=Json.getArtistArray().getParcelableArrayList(Json.ARTIST_LIST);
+                if (result!=null){
+                    mArtistListAdapter.clear();
+                    mArtistListAdapter.addAll(result);
+                }
+
+
+                //FetchTrackTask artistTask = new FetchTrackTask();
+                //artistTask.execute();
                 //artistTask.execute(search);
 
-                //Bundle artistArray=new Bundle();
-
-                updateEmptyView();
             }
         });
         //listener for listview
@@ -210,18 +213,20 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
         protected  ArrayList<MusicData>  doInBackground(Void... params) {
 
              ArrayList<MusicData> result=Json.getArtistArray().getParcelableArrayList(Json.ARTIST_LIST);
+
             return result;
         }
 
         private ArrayList<MusicData> preResult;
-       /* protected void onPostExecute(ArrayList<MusicData> result) {
+       protected void onPostExecute(ArrayList<MusicData> result) {
             if (result!=null&&result!=preResult){
                 mArtistListAdapter.clear();
                 mArtistListAdapter.addAll(result);
                 preResult=result;
             }
+            updateEmptyView();
 
-        }*/
+        }
 
     }
 
@@ -268,20 +273,19 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
 
 
-    @Override
+    /*@Override
     public void onLoadFinished(Loader<MusicData> loader, MusicData data) {
+        final Lock lock = new ReentrantLock();
+        final Condition notFull  = lock.newCondition();
 
-        if (result!=null){
-            mArtistListAdapter.clear();
-            mArtistListAdapter.addAll(result);
-        }
-        /*mForecastAdapter.swapCursor(data);
+
+        *//*mForecastAdapter.swapCursor(com.example.android.spotifystreamer.apk.data);
         if (mPosition != ListView.INVALID_POSITION) {
             // If we don't need to restart the loader, and there's a desired position to restore
             // to, do so now.
             mListView.smoothScrollToPosition(mPosition);
             updateEmptyView();
-        }*/
+        }*//*
     }
     //release any resource
     @Override
@@ -299,12 +303,13 @@ public class MainActivityFragment extends Fragment implements LoaderManager.Load
 
     }
 
+
     private static final int FORECAST_LOADER = 0;
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(FORECAST_LOADER, null, this);
         super.onActivityCreated(savedInstanceState);
-    }
+    }*/
 
 
 }

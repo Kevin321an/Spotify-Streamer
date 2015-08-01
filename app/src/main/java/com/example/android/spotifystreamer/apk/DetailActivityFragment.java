@@ -460,7 +460,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 music.add(new MusicData(musicID, trackName, albumName, albumImage640, albumImage300, previewUrl,external_urls));
 
             }
-            //output the  the formated data
+            //output the  the formated com.example.android.spotifystreamer.apk.data
             for (MusicData s : music) {
                 Log.v(LOG_TAG, "Detail entry: " + s);
             }

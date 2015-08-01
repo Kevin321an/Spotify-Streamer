@@ -26,7 +26,7 @@ public class DetailActivity extends AppCompatActivity {
         //set title which will be called from fragment
         ActionBar actionBar = getSupportActionBar();
         Intent intent=getIntent();
-        //Bundle data = getIntent().getExtras();
+        //Bundle com.example.android.spotifystreamer.apk.data = getIntent().getExtras();
         if (intent != null && intent.hasExtra("Object")) {
             music = (MusicData) intent.getExtras().getParcelable("Object");
         }

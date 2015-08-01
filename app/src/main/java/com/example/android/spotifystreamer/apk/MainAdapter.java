@@ -45,7 +45,7 @@ public class MainAdapter extends ArrayAdapter<MusicData> {
     @Override
     public View getView(int position, View view, ViewGroup parent) {
         LinearLayout layout;
-               // Get the data item for this position
+               // Get the com.example.android.spotifystreamer.apk.data item for this position
         MusicData music = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
         ViewHodler holder;

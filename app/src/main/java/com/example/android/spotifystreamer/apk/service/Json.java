@@ -1,11 +1,14 @@
-package service;
+package com.example.android.spotifystreamer.apk.service;
 
 import android.app.IntentService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.android.spotifystreamer.apk.MainActivityFragment;
 import com.example.android.spotifystreamer.apk.MusicData;
 
 import org.json.JSONArray;
@@ -33,10 +36,11 @@ public class Json  extends IntentService {
     public static  Bundle getArtistArray(){
         return artistArray;
     }
+    private static boolean callBack;
+    public static boolean isCallBack(){ return callBack;}
     @Override
     protected void onHandleIntent(Intent intent) {
         String artist = intent.getStringExtra(ARTIST);
-
 
             //protected ArrayList<MusicData> doInBackground(String... params) {
 
@@ -155,18 +159,19 @@ public class Json  extends IntentService {
 
                 }
 
-                //output the  the formated data
+                //output the  the formated com.example.android.spotifystreamer.apk.data
                 for (MusicData s : music) {
                     Log.v(LOG_TAG, "Main entry" + s);
                 }
 
                 artistArray.putParcelableArrayList(ARTIST_LIST,music);
+                callBack=!callBack;
             }
 
 
  public Json(){ super("SpotifyStreamer");}
 
-/*
+
     static public class AlarmReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -174,6 +179,6 @@ public class Json  extends IntentService {
             sendIntent.putExtra(Json.ARTIST, intent.getStringExtra(Json.ARTIST));
             context.startService(sendIntent);
         }
-    }*/
+    }
 
 }

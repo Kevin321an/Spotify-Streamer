@@ -1,4 +1,4 @@
-package service;
+package com.example.android.spotifystreamer.apk.service;
 
 import android.app.Service;
 import android.content.Intent;
@@ -18,7 +18,7 @@ public class MusicService extends Service {
     private final Random mGenerator = new Random();
 
     /**
-     * Class used for the client Binder.  Because we know this service always
+     * Class used for the client Binder.  Because we know this com.example.android.spotifystreamer.apk.service always
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocalBinder extends Binder {

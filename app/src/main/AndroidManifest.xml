@@ -61,7 +61,6 @@
         </activity>
         <activity
             android:name=".MusicPlay"
-
             android:label="@string/title_activity_music_play"
             android:parentActivityName=".DetailActivity" >
             <meta-data
@@ -76,11 +75,12 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.android.spotifystreamer.apk.MainActivity" />
         </activity>
+        <provider
+            android:authorities="com.example.android.spotifystreamer.apk"
+            android:name=".data.MusicProvider" />
 
-
-
-        <service android:name="service.Json"/>
-        <receiver android:name="service.Json$AlarmReceiver" android:enabled="true"/>
+        <service android:name=".service.Json"/>
+        <receiver android:name=".service.Json$AlarmReceiver" android:enabled="true"/>
 
 
     </application>
