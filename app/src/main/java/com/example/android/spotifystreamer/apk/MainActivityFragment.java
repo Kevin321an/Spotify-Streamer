@@ -1,14 +1,15 @@
 package com.example.android.spotifystreamer.apk;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,8 +22,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.android.spotifystreamer.apk.service.Json;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -155,9 +164,9 @@ public class MainActivityFragment extends Fragment {
 
             private void performSearch(String search){
                 //fetch com.example.android.spotifystreamer.apk.data by using Pending Intent
-                Intent intent = new Intent(getActivity(), Json.class);
+                /*Intent intent = new Intent(getActivity(), Json.class);
                 intent.putExtra(Json.ARTIST,search);
-                getActivity().startService(intent);
+                getActivity().startService(intent);*/
                 /* //fetch com.example.android.spotifystreamer.apk.data by using Pending Intent
                 Intent alarmIntent = new Intent(getActivity(), Json.AlarmReceiver.class);
                 alarmIntent.putExtra(Json.ARTIST, search);
@@ -176,16 +185,9 @@ public class MainActivityFragment extends Fragment {
                    System.out.println("callback");
                 }
                 serviceCallback=Json.isCallBack();*/
-                result=Json.getArtistArray().getParcelableArrayList(Json.ARTIST_LIST);
-                if (result!=null){
-                    mArtistListAdapter.clear();
-                    mArtistListAdapter.addAll(result);
-                }
-
-
-                //FetchTrackTask artistTask = new FetchTrackTask();
-                //artistTask.execute();
-                //artistTask.execute(search);
+                FetchArtistTask artistTask = new FetchArtistTask();
+                artistTask.execute(search);
+                updateEmptyView();
 
             }
         });
@@ -208,27 +210,145 @@ public class MainActivityFragment extends Fragment {
         return rootView;
     }
 
-    public class FetchTrackTask extends AsyncTask<Void, Void, ArrayList<MusicData>> {
-        private final String LOG_TAG = FetchTrackTask.class.getSimpleName();
-        protected  ArrayList<MusicData>  doInBackground(Void... params) {
+    public class FetchArtistTask extends AsyncTask<String, Void, ArrayList<MusicData>> {
+        private final String LOG_TAG = FetchArtistTask.class.getSimpleName();
 
-             ArrayList<MusicData> result=Json.getArtistArray().getParcelableArrayList(Json.ARTIST_LIST);
 
-            return result;
+        protected ArrayList<MusicData> doInBackground(String... params) {
+
+            final String ARTIST_BASE_URL = "https://api.spotify.com/v1/search?";
+            final String QUERY_PARAM = "q";
+            final String TYPE_PARAM = "type";
+            // These two need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            // Will contain the raw JSON response as a string.
+            String artistJsonStr = null;
+
+            //curl -X GET "https://api.spotify.com/v1/search?q=tania*&type=artist" -H "Accept: application/json"
+            try {
+                final String ARTIST_TYPE_PARAM = "artist";
+                //URL url= new URL("https://api.spotify.com/v1/search?q=tania*&type=artist");
+                Uri builtUri = Uri.parse(ARTIST_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(TYPE_PARAM, ARTIST_TYPE_PARAM)
+                        .build();
+                URL url = new URL(builtUri.toString());
+
+                Log.v(LOG_TAG, "Built URI" + builtUri.toString());
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    buffer.append(line + "\n");
+
+                }
+                if (buffer.length() == 0) {
+                    return null;
+
+                }
+                artistJsonStr = buffer.toString();
+                //Log.v(LOG_TAG, "artisList JSON String"+artistJsonStr);
+
+            } catch (IOException e) {
+                Log.e("LOG_TAG", "Error " + e);
+                return null;
+
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e("LOG_TAG", "Error closing stream", e);
+                    }
+                }
+            }
+            try {
+                return getArtistDataFromJson(artistJsonStr);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+            return null;
+        }
+        private ArrayList<MusicData> getArtistDataFromJson(String musicJsonStr)
+                throws JSONException {
+            ArrayList<MusicData> music;
+
+            //Log.v(LOG_TAG, "artisList JSON String"+musicJsonStr);
+
+            // These are the names of the JSON objects that need to be extracted.
+            final String SPOTIFY_ITEMS = "items";
+            final String SPOTIFY_ID = "id";
+            final String SPOTIFY_IMAGE = "images";
+            final String SPOTIFY_ARITIS = "artists";
+            JSONObject musicJson = new JSONObject(musicJsonStr).getJSONObject(SPOTIFY_ARITIS);
+            JSONArray musicArray = musicJson.getJSONArray(SPOTIFY_ITEMS);
+            //Log.v(LOG_TAG, "artisList JSON String"+musicArray.toString());
+            int numberOfAritist = musicArray.length();
+            if (numberOfAritist == 0) {
+                dataIsNull = true;
+            }
+
+            music = new ArrayList<MusicData>();
+            for (int i = 0; i < numberOfAritist; i++) {
+                final String OWM_NAME = "name";
+                final String OWM_URL = "url";
+                final int SMALL_IMG_SEQUENCE = 2;
+                final int Big_IMG_SEQUENCE = 0;
+                String images64UrlS,images640UrlS;
+                // Get the JSON object representing the day
+                JSONObject artistObject = musicArray.getJSONObject(i);
+                String id = artistObject.getString(SPOTIFY_ID);
+                //JSONObject images= artistObject.getJSONArray(SPOTIFY_IMAGE).getJSONObject(SMALL_IMG_SEQUENCE);
+                JSONArray images = artistObject.getJSONArray(SPOTIFY_IMAGE);
+
+                if (images.length() > 0) {
+                    images64UrlS = images.getJSONObject(SMALL_IMG_SEQUENCE).getString(OWM_URL);
+                } else {
+                    images64UrlS = "";
+                }
+                if (images.length() > 0) {
+                    images640UrlS = images.getJSONObject(Big_IMG_SEQUENCE).getString(OWM_URL);
+                } else {
+                    images640UrlS = "";
+                }
+
+                String artistName = artistObject.getString(OWM_NAME);
+                music.add(new MusicData(artistName, images64UrlS,images640UrlS, id));
+
+            }
+
+            //output the  the formated data
+            for (MusicData s : music) {
+                Log.v(LOG_TAG, "Main entry" + s);
+            }
+            return music;
         }
 
-        private ArrayList<MusicData> preResult;
-       protected void onPostExecute(ArrayList<MusicData> result) {
-            if (result!=null&&result!=preResult){
+
+
+        protected void onPostExecute(ArrayList<MusicData> result) {
+            if (result != null) {
+
                 mArtistListAdapter.clear();
                 mArtistListAdapter.addAll(result);
-                preResult=result;
             }
-            updateEmptyView();
 
         }
-
     }
+
 
     //Save the ListView state on onSaveInstanceState:
     @Override
