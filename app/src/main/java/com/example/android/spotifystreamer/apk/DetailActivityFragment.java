@@ -90,9 +90,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
         Intent intent = getActivity().getIntent();
 
         if (intent != null && intent.hasExtra("Object")) {
-
             music = (MusicData)intent.getExtras().getParcelable("Object");
-
         }
         if (music!=null){
             musicID = music.id.id;
@@ -109,7 +107,10 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                 }else {
                     Picasso.with(getActivity().getBaseContext()).load(R.drawable.example).into((ImageView) detailRootView.findViewById(R.id.image));
                 }
-            fillGapViewDisply();
+
+            if (!MainActivity.getMTwoPane()) {
+                fillGapViewDisply();
+            }
             FetchTrackTask trackTask = new FetchTrackTask();
             //if oldID same with new id, it is no need to execute the HTTP checking
             if(!oldMusciId.equals(music.id.id)){
@@ -120,7 +121,7 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
             listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
             listviewClickListener();
         }
-        oldMusciId=music.id.id;
+        oldMusciId=musicID;
         return detailRootView;
     }
     //listener for listview and sent intent to mediaPlayer
@@ -169,7 +170,10 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
         mHeaderBar = detailRootView.findViewById(R.id.header_bar);
         mHeaderBackground = detailRootView.findViewById(R.id.header_background);
         mListBackgroundView = detailRootView.findViewById(R.id.list_background);
-        ((TextView) detailRootView.findViewById(R.id.title)).setText(artist);
+
+            ((TextView) detailRootView.findViewById(R.id.title)).setText(artist);
+
+
         //getActivity().setTitle(null);
         final ObservableListView scrollable = createScrollable();
         ScrollUtils.addOnGlobalLayoutListener((View) scrollable, new Runnable() {

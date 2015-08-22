@@ -135,6 +135,7 @@ public class MusicPlayFragment extends DialogFragment implements AudioManager.On
         // remove the dialog title, but you must call the superclass to get the Dialog.
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+
         return dialog;
     }
 
