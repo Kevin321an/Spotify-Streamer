@@ -20,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -139,11 +138,11 @@ public class MainActivityFragment extends Fragment {
                 str = s.toString().trim();
 
 
-                if (dataIsNull && s.length() > 3) {
+                /*if (dataIsNull && s.length() > 3) {
                     final String NO_RESULT = getString(R.string.no_result_feedback);
                     Toast.makeText(getActivity(), NO_RESULT, Toast.LENGTH_SHORT).show();
                     dataIsNull = false;
-                }
+                }*/
             }
 
             @Override

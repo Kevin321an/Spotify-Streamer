@@ -108,9 +108,8 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
                     Picasso.with(getActivity().getBaseContext()).load(R.drawable.example).into((ImageView) detailRootView.findViewById(R.id.image));
                 }
 
-            if (!MainActivity.getMTwoPane()) {
                 fillGapViewDisply();
-            }
+
             FetchTrackTask trackTask = new FetchTrackTask();
             //if oldID same with new id, it is no need to execute the HTTP checking
             if(!oldMusciId.equals(music.id.id)){
@@ -120,8 +119,9 @@ public class DetailActivityFragment <S extends Scrollable>extends Fragment imple
             listView = (ObservableListView) detailRootView.findViewById(R.id.listview_detail);
             listView.setAdapter(mDetailAdapter); //shoot the ArrayAdapter on to Screen
             listviewClickListener();
+            oldMusciId=music.id.id;
         }
-        oldMusciId=musicID;
+
         return detailRootView;
     }
     //listener for listview and sent intent to mediaPlayer
